@@ -19,7 +19,7 @@ def calculate_force(o1, o2, G=6.674*10e-11):
         G (float, optional): Gravitational Constant. Defaults to 6.674*10e-11.
 
     Returns:
-        _type_: _description_
+        float: The force between the objects
     """
     r_sq = (o1.x - o2.x)**2 + (o1.y - o2.y)**2
     return G * o1.mass * o2.mass / r_sq
