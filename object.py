@@ -1,26 +1,27 @@
 class Object:
     """Object class, stores position and mass
     """
-    x: float = 0.0
-    y: float = 0.0
-    mass: float = 1.0
+    x: float = 0.0 # meters
+    y: float = 0.0 # meters
+    mass: float = 1.0 # kg
     
     def __init__(self, x, y, mass):
         self.x = x
         self.y = y
         self.mass = mass
         
-def calculate_force(o1, o2, G=6.674*10e-11):
+        
+def calculate_force(obj1, obj2, G=6.674*10e-11):
     """Calculates the force between two objects
 
     Args:
-        o1 (Object): First Object
-        o2 (Object): Second Object
+        obj1 (Object): First Object
+        obj2 (Object): Second Object
         G (float, optional): Gravitational Constant. Defaults to 6.674*10e-11.
 
     Returns:
         float: The force between the objects
     """
-    r_sq = (o1.x - o2.x)**2 + (o1.y - o2.y)**2
-    return G * o1.mass * o2.mass / r_sq
+    r_sq = (obj1.x - obj2.x)**2 + (obj1.y - obj2.y)**2
+    return G * obj1.mass * obj2.mass / r_sq
     
