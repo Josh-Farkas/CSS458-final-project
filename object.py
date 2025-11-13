@@ -1,4 +1,4 @@
-class Object:
+class SimObject:
     """Object class, stores position and mass
     """
     x: float = 0.0 # meters
@@ -9,7 +9,7 @@ class Object:
         self.x = x
         self.y = y
         self.mass = mass
-        
+    
         
 def calculate_force(obj1, obj2, G=6.674*10e-11):
     """Calculates the force between two objects
