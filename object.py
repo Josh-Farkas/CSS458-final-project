@@ -4,11 +4,13 @@ class SimObject:
     x: float = 0.0 # meters
     y: float = 0.0 # meters
     mass: float = 1.0 # kg
+    velocity: tuple[float, float] = (0.0, 0.0) # ms/s
     
-    def __init__(self, x, y, mass):
+    def __init__(self, x, y, mass, velocity):
         self.x = x
         self.y = y
         self.mass = mass
+        self.velocity = velocity
     
         
 def calculate_force(obj1, obj2, G=6.674*10e-11):
