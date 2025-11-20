@@ -1,20 +1,22 @@
 import numpy as np
 
 class Body:
-    """Body class, stores position, mass, and radius
+    """Body class, stores position, velocity, mass, and radius
     """
-    x: float = 0.0 # meters
-    y: float = 0.0 # meters
-    mass: float = 1.0 # kg
-    radius: float = 0.0 # meters
+    x: int = 0.0 # meters
+    y: int = 0.0 # meters
+    mass: int = 0 # kg
+    radius: int = 0 # meters
+    vel_x: float = 0.0 # m/s
+    vel_y: float = 0.0 # m/s
     
-    def __init__(self, x, y, mass, radius):
+    def __init__(self, x, y, vel_x, vel_y, mass, radius):
         self.x = x
         self.y = y
-        self.mass = mass # kg
-        self.radius = radius # meters
-        vel_x: float = 0.0 # m/s
-        vel_y: float = 0.0 # m/s
+        self.mass = mass
+        self.radius = radius
+        self.vel_x = vel_x
+        self.vel_y = vel_y
         
         
 def calculate_gravitational_force(body1, body2, G=6.674*10e-11):
