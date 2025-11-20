@@ -4,16 +4,20 @@ class SimObject:
     x: float = 0.0 # meters
     y: float = 0.0 # meters
     mass: float = 1.0 # kg
-    velocity: tuple[float, float] = (0.0, 0.0) # ms/s
+    vel_x: float = 0.0 # m/s
+    vel_y: float = 0.0 # m/s
     
-    def __init__(self, x, y, mass, velocity):
+    timestep = 1000 # timestep length in seconds
+    
+    def __init__(self, x, y, mass, vel_x=0.0, vel_y=0.0):
         self.x = x
         self.y = y
         self.mass = mass
-        self.velocity = velocity
-    
+        self.vel_x = vel_x
+        self.vel_y = vel_y
         
-def calculate_force(obj1, obj2, G=6.674*10e-11):
+        
+def calculate_gravitational_force(obj1, obj2, G=6.674*10e-11):
     """Calculates the force between two objects
 
     Args:
