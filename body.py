@@ -11,12 +11,14 @@ class Body:
     def __init__(self, x, y, mass, radius):
         self.x = x
         self.y = y
-        self.mass = mass
-        self.radius = radius
+        self.mass = mass # kg
+        self.radius = radius # meters
+        vel_x: float = 0.0 # m/s
+        vel_y: float = 0.0 # m/s
         
         
-def calculate_force(body1, body2, G=6.674*10e-11):
-    """Calculates the force between two bodies
+def calculate_gravitational_force(body1, body2, G=6.674*10e-11):
+    """Calculates the gravitational force between two bodies
 
     Args:
         body1 (Body): First Body
@@ -29,7 +31,8 @@ def calculate_force(body1, body2, G=6.674*10e-11):
     r_sq = (body1.x - body2.x)**2 + (body1.y - body2.y)**2
     return G * body1.mass * body2.mass / r_sq
 
-def collision(body1, body2):
+
+def is_collided(body1, body2):
     """Checks if two bodies have collided.
 
     Args:
@@ -39,12 +42,4 @@ def collision(body1, body2):
     Returns:
         boolean: True if there was a collision, false if otherwise.
     """
-    x_1 = body1.x # meters
-    y_1 = body1.y # meters
-    r_1 = body1.radius # meters
-
-    x_2 = body2.x # meters
-    y_2 = body2.y # meters
-    r_2 = body2.radius # meters
-
-    return np.sqrt((x_2 - x_1)**2 + (y_2 - y_1)**2) <= (r_1 + r_2)
+    return np.sqrt((body2.x - body1.x)**2 + (body2.y - body1.y)**2) <= (body1.radius + body2.radius)
