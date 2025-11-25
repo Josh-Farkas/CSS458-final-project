@@ -9,15 +9,19 @@ class Body:
     velocity = np.array([0, 0])
     mass: int = 0 # kg
     radius: int = 0 # meters
+    body_type = None
     
     model = None
     
-    def __init__(self, pos, vel, mass, radius, model):
+    def __init__(self, pos, vel, mass, radius, model, body_type):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
         self.radius = radius
         self.model = model
+
+        if body_type is "ast" or body_type is "planet":
+            self.body_type = body_type
     
     
     def acceleration(self, position):
