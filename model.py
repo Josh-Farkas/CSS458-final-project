@@ -8,7 +8,13 @@ class Model:
     def __init__(self):
         pass
     
-    def collisions(self):
-        for b in self.bodies:
-            b.check_collisions()
+    
+    def init_bodies(self):
+        pass
+    
+    
+    def step(self):
+        pass
+    
+
             
