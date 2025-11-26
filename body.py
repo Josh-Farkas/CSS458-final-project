@@ -7,8 +7,9 @@ class Body:
     """
     position = np.array([0, 0])
     velocity = np.array([0, 0])
-    mass: int = 0 # kg
-    radius: int = 0 # meters
+    mass = 0 # kg
+    radius = 0 # meters
+    kinetic_energy = 0
     
     model = None
     
@@ -18,6 +19,28 @@ class Body:
         self.mass = mass
         self.radius = radius
         self.model = model
+        
+        ke = self.mass * np.linalg.norm(self.velocity**2)
+        print("Initial KE: ", ke)
+        
+        
+    
+    
+    def step(self):
+        """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
+        """
+        self.runge_kutta(dt=self.model.dt)
+        
+        for other in self.model.bodies:
+            if other is self: continue
+            if self.is_collided(other):
+                self.collide(other, elasticity=self.model.collision_elasticity)
+        
+        
+        ke = self.mass * np.linalg.norm(self.velocity**2)
+        energy_loss = self.kinetic_energy - ke
+        self.kinetic_energy = ke
+        # print(energy_loss)
     
     
     def acceleration(self, position):
@@ -39,7 +62,6 @@ class Body:
             if dist == 0: continue
             
             acc += G * other.mass * r / dist**3 # derived formula from gravitational formula, F=ma, and unit vector
-
         return acc
     
     
@@ -59,11 +81,11 @@ class Body:
         return np.hstack((vel, self.acceleration(pos)))
 
     
-    def runge_kutta(self, dt=1.0):
+    def runge_kutta(self, dt):
         """Runge-Kutta timestepping method. Updates position and velocity.
 
         Args:
-            dt (float, optional): Timestep length in seconds. Defaults to 1.0.
+            dt (float, optional): Timestep length in seconds.
         """
         state = np.hstack((self.position, self.velocity))
         k1 = dt * self.state_deriv(state)
@@ -73,7 +95,8 @@ class Body:
         
         # Calculate weighted average.
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
-        return new_state
+        self.position = new_state[:2]
+        self.velocity = new_state[2:]
     
     
     def distance_to(self, other):
@@ -82,7 +105,8 @@ class Body:
         Args:
             other (Body): Body to check distance to.
         """
-        return np.sqrt((self.position[0] - other.position[0])**2 + (self.position[1] - other.position[1])**2)
+        return np.linalg.norm(self.position - other.position)
+        # return np.sqrt((self.position[0] - other.position[0])**2 + (self.position[1] - other.position[1])**2)
     
     
     def is_collided(self, other):
@@ -94,9 +118,7 @@ class Body:
         Returns:
             boolean: True if there was a collision, false if otherwise.
         """
-        return self.distance_to(other) <= (self.radius + other.radius)
-
-
+        return self.distance_to(other) < (self.radius + other.radius)
 
 
     def collide(self, other, elasticity=1.0):
@@ -112,8 +134,18 @@ class Body:
         contact_normal = (other.position - self.position) / dist # normal vector pointing from body1 to body2
         v_rel = np.dot((other.velocity - self.velocity), contact_normal) # Relative velocity along normal
         if v_rel >= 0: return # Do not collide if bodies are moving away from each other
-        impulse = -1 * ((1 + elasticity) * v_rel) / (1 / self.mass + 1 / other.mass) * contact_normal
+        impulse = -1.0 * ((1 + elasticity) * v_rel) / (1 / self.mass + 1 / other.mass) * contact_normal
         
         # Update Body velocities
         self.velocity -= impulse / self.mass
         other.velocity += impulse / other.mass
+        
+        self.update_collision_data(other)
+        other.update_collision_data(self)
+        
+        
+        
+    # Virtual function
+    def update_collision_data(self, other):
+        pass
+
