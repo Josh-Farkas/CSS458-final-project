@@ -13,12 +13,13 @@ class Body:
     
     model = None
     
-    def __init__(self, pos, vel, mass, radius, model, body_type):
+    def __init__(self, pos, vel, mass, radius, model, body_type, label):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
         self.radius = radius
         self.model = model
+        self.label = label
 
         if body_type is "ast" or body_type is "planet":
             self.body_type = body_type
