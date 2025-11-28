@@ -13,16 +13,14 @@ class Body:
     
     model = None
     
-    def __init__(self, pos, vel, mass, radius, model, body_type, label):
+    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, body_type="planet", label=""):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
         self.radius = radius
         self.model = model
         self.label = label
-
-        if body_type is "ast" or body_type is "planet":
-            self.body_type = body_type
+        self.body_type = body_type
     
     
     def acceleration(self, position):
@@ -122,3 +120,7 @@ class Body:
         # Update Body velocities
         self.velocity -= impulse / self.mass
         other.velocity += impulse / other.mass
+
+    def set_pos(self, pos_arr):
+        self.position[0] = pos_arr[0]
+        self.position[1] = pos_arr[1]
