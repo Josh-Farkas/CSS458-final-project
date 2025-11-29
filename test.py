@@ -76,7 +76,7 @@ def animation_test():
         time_steps_set.append(set_copy)
 
     animation = ani.Animation(time_steps_set)
-    print(time_steps_set)
+    animation.centered_sun()
     
 
 animation_test()
