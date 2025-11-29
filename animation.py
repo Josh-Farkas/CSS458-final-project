@@ -1,13 +1,21 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
-import math
+
+VALID_CENTERS = ["sun", "earth", "asteroid", "dart"]
 
 class Animation(object):
     
     def __init__(self, bodies):
         self.data_set = np.array(bodies, dtype=object)
         self.set_size = len(bodies)
+
+    def animate(self, center="sun", save=False):
+        if center in VALID_CENTERS:
+            pass
+        else:
+            print("Invalid center declaration in animate function call.")
+            print("Valid declarations: \"sun\", \"earth\", \"asteroid\", \"dart\".")
     
     def update(self, frame):
         bodies = self.data_set[frame]
