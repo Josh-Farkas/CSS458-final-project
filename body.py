@@ -145,6 +145,13 @@ class Body:
         self.velocity -= impulse / self.mass
         other.velocity += impulse / other.mass
         
+        # Positional correction (prevents repeated collisions)
+        overlap = self.radius + other.radius - dist
+        if overlap > 0:
+            correction = 0.5 * overlap * contact_normal
+            self.position -= correction
+            other.position += correction
+        
         self.update_collision_data(other)
         other.update_collision_data(self)
         
