@@ -88,7 +88,7 @@ def animation_test():
         time_steps_set.append(set_copy)
 
     animation = ani.Animation(time_steps_set)
-    animation.animate(center="sun", save=True)
+    animation.animate(center="sun", save=False)
     
 
 animation_test()
