@@ -3,6 +3,18 @@ import body
 import math
 import copy
 
+'''
+Data gathered from nasa's horizons system.
+Coordinate Center: Solar System Barycenter (SSB) [500@0]
+Time Specification: Start=2025-11-25, Stop=2025-11-26, Step=1 day
+'''
+# Sun
+sun_set = {
+    "pos": [-4.988627732571386E+05, -8.277897107109898E+05],
+    "label": "sun"
+}
+sun = body.Body(pos=sun_set["pos"], label=sun_set["label"])
+#-----------------------------------------------------------------------
 # Earth
 earth_set = {
     "pos": [6.744778068264060E+07, 1.302994293719669E+08],
@@ -60,7 +72,7 @@ uranus_set = {
 uranus = body.Body(pos=uranus_set["pos"], label=uranus_set["label"])
 #-----------------------------------------------------------------------
 
-planet_set = [mercury, mars, earth, venus, jupiter, saturn, uranus, neptune]
+planet_set = [sun, mercury, mars, earth, venus, jupiter, saturn, uranus, neptune]
 
 def animation_test():
     time_steps_set = []
@@ -76,7 +88,7 @@ def animation_test():
         time_steps_set.append(set_copy)
 
     animation = ani.Animation(time_steps_set)
-    animation.centered_sun()
+    animation.animate(center="sun", save=True)
     
 
 animation_test()
