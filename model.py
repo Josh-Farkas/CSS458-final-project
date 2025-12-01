@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 class Model:
     # Tunable Parameters
-    dt = 1.0
+    dt = 100.0
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 1 # kg
     dart_speed = 1 # m/s
@@ -20,6 +20,8 @@ class Model:
     planets = []
     asteroids = []
     earth = None
+    
+    # Tracked Data
     num_intercepted = 0
     num_asteroids_collided = 0
     num_intercepted_collided = 0
@@ -29,16 +31,13 @@ class Model:
 
     
     def init_bodies(self):
-        self.earth = Planet(np.zeros((2,), dtype=np.float64), np.zeros((2,), dtype=np.float64), 10000000000000000.0, 100.0, self)
-        self.bodies.append(self.earth)
-        self.planets.append(self.earth)
-        for _ in range(10):
-            # ast = Asteroid(pos=np.random.uniform(1000, 5000, 2), vel=np.random.uniform(-100, 100, 2), mass=np.random.uniform(10., 50.), radius=50.0, model=self)
-            ast = Asteroid(pos=np.random.uniform(1000, 5000, 2), vel=np.random.uniform(-100, 100, 2), mass=np.random.uniform(10., 50.), radius=50.0, model=self)
-
-            self.bodies.append(ast)
-            self.asteroids.append(ast)
+        pass
     
+    def init_planets(self):
+        pass
+    
+    def add_body(self):
+        pass
     
     def run(self):
         fig, ax = plt.subplots(figsize=(6,6))

@@ -7,18 +7,23 @@ class Body:
     """
     position = np.array([0, 0])
     velocity = np.array([0, 0])
+    mass: int = 0 # kg
+    radius: int = 0 # meters
+    body_type = None
     mass = 0 # kg
     radius = 0 # meters
     kinetic_energy = 0
     
     model = None
     
-    def __init__(self, pos, vel, mass, radius, model):
+    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, body_type="planet", label=""):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
         self.radius = radius
         self.model = model
+        self.label = label
+        self.body_type = body_type
         
         ke = self.mass * np.linalg.norm(self.velocity**2)
         print("Initial KE: ", ke)
@@ -149,3 +154,7 @@ class Body:
     def update_collision_data(self, other):
         pass
 
+
+    def set_pos(self, pos_arr):
+        self.position[0] = pos_arr[0]
+        self.position[1] = pos_arr[1]
