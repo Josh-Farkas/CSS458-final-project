@@ -15,6 +15,7 @@ class Model:
     dart_mass = 1 # kg
     dart_speed = 1 # m/s
     
+    
     # End Tunable Parameters
     
     bodies = []
@@ -33,12 +34,14 @@ class Model:
 
     
     def init_bodies(self):
-        pass
+        self.init_planets()
+        self.init_asteroids()
+        self.bodies = self.planets + self.asteroids
     
     def init_planets(self):
-        pass
+        
     
-    def add_body(self):
+    def init_asteroids():
         pass
     
     def run(self):
@@ -69,7 +72,6 @@ class Model:
             
     
     def launch_dart(self, asteroid):
-        
         # normal vector where dart is coming from
         dir = asteroid.position - self.earth.position / asteroid.distance_to(self.earth)
         pos = asteroid.position - dir * asteroid.radius # spawn dart colliding with asteroid
