@@ -5,11 +5,12 @@ from dart import Dart
 from asteroid import Asteroid
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 
 class Model:
     # Tunable Parameters
-    dt = 100.0
+    dt = 1.0
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 1 # kg
     dart_speed = 1 # m/s
@@ -19,12 +20,13 @@ class Model:
     bodies = []
     planets = []
     asteroids = []
-    earth = None
+    
+    all_timestep_bodies = [] # [bodies at time 1, bodies at time 2...]
     
     # Tracked Data
     num_intercepted = 0
     num_asteroids_collided = 0
-    num_intercepted_collided = 0
+    num_intercepted_collided = 0 # Failed interceptions
     
     def __init__(self):
         self.init_bodies()
@@ -59,12 +61,12 @@ class Model:
 
     
     def step(self):
+        b = []
         for body in self.bodies:
             body.step()
-        
+            b.append(copy.deepcopy(body))
+        self.all_timestep_bodies.append(b)
             
-            
-    
     
     def launch_dart(self, asteroid):
         
@@ -76,8 +78,3 @@ class Model:
         
         # Immediately calculate collision
         asteroid.collide(dart)
-
-       
-       
-model = Model()
-model.run()
