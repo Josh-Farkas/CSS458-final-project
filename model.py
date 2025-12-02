@@ -78,3 +78,8 @@ class Model:
         
         # Immediately calculate collision
         asteroid.collide(dart)
+
+       
+       
+# model = Model()
+# model.run()

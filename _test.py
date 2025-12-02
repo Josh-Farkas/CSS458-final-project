@@ -19,6 +19,8 @@ import analysis
 import animation
 import body
 import model
+import data
+import pytest
 
 # Analysis Module Tests
 ##############################
@@ -29,8 +31,43 @@ def test_temp():
 # Animation Module Tests
 ##############################
 
-def test_temp():
-    pass
+class MockBody(object):
+    def __init__(self, x, y, label):
+        self.position = (x, y)
+        self.label = label
+
+def test_attribute_storage_animation():
+    bodies = [[MockBody(0, 0, 'body'), MockBody(0, 0, 'body')],
+              [MockBody(0, 0, 'body'), MockBody(0, 0, 'body')]]
+    ani = animation.Animation(bodies)
+    assert ani.set_size == 2
+    assert ani.data_set.shape == (2, 2)
+    assert ani.data_set[0][0].label == 'body'
+
+def test_centered_positions():
+    bodies = [[MockBody(10, 10, 'sun'), MockBody(12, 13, 'earth')]]
+    ani = animation.Animation(bodies)
+    ani.center_name = 'sun'
+
+    xs, ys = ani._Animation__get_centered_positions(0)
+
+    assert xs == [0, 2]
+    assert ys == [0, 3]
+
+def test_center_value_validity():
+    bodies = [[MockBody(0, 0, 'earth')]]
+    ani = animation.Animation(bodies)
+    ani.center_name = 'sun'
+
+    with pytest.raises(ValueError):
+        ani._Animation__get_centered_positions(0)
+
+def test_center_arg(capsys):
+    anim = animation.Animation([[]])
+    anim.animate(center="INVALID")
+
+    captured = capsys.readouterr()
+    assert "Invalid center declaration" in captured.out
 
 # Body Module Tests
 ##############################
