@@ -1,3 +1,4 @@
+
 """
 Assumptions about Model 
 1. History format is:
@@ -19,6 +20,10 @@ import body
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+
+
+#========================================Data Storage methods=============================================
 class Analysis:
 
     def __init__(self):
@@ -27,13 +32,18 @@ class Analysis:
 
 
 
-    def add_runs(self, name, history):
+    def add_runs(self, name, history, num_intercepted, num_asteroids_collided, num_intercepted_collided, dt):
 
         """
-        Takes one run adds it into the dictionary to be used later.
+        Takes one run adds its information into the dictionary to be used later.
         Needs to be updated to be automated with a loop once model is completed
         """
-        self.runs[name] = history 
+        self.runs[name] = {
+            "history" : history,
+            "num_intercepted": num_intercepted, 
+            "num_asteroids_collided": num_asteroids_collided,
+            "num_failed_interception": num_intercepted_collided,
+            "dt": dt} 
 
     
     def find_by_label(self, bodies, label):
@@ -53,7 +63,7 @@ class Analysis:
         Checks to see if collision has happened. 
         If it has then collects the time step it happened on
         """
-        history = self.runs[run_name]
+        history = self.runs[run_name]["history"]
         collision_time_step = 0
 
 
@@ -69,7 +79,11 @@ class Analysis:
 
         return None 
     
-            
+   #===================================================================================================
+
+
+   #========================================Verification Methods-Physcis related=====================================         
+
     def calculate_total_energy(self, bodies):
         """
         Calculates the sum of kinetic energy  and potential energy for all bodies
@@ -107,7 +121,7 @@ class Analysis:
         Checks for conservation of energy and results will be used for plotting 
         to show verification of the model. Tracks total energy between all bodies
         """
-        history = self.runs[run_name]
+        history = self.runs[run_name]["history"]
         energy = []
 
         for time_step in history:
@@ -144,12 +158,12 @@ class Analysis:
 
 
 
-    def calculate_conservation_of_momentum(self, run_name):
+    def check_conservation_of_momentum(self, run_name):
         """
         Checks to see if the momentum is conserved
         """
 
-        history = self.runs[run_name]
+        history = self.runs[run_name]["history"]
         momentums = []
 
         for time_step in history:
@@ -159,28 +173,10 @@ class Analysis:
 
         return momentums
 
+#=========================================================================================
 
-    #waiting for model
-    def get_velocity_change(self, run_name, label, timestep):
-        """Measures velocity change of a body before and after collision."""
 
-        pass
-    
-
-    def get_trajectory(self, run_name, label):
-        """
-        Gets the position of given body 
-        """
-        pass
-
-    #waiting for model
-    def analyze_dart_impacts(self):
-        pass
-    
-    #waiting for model
-    def compare_trajectories(self):
-        
-        pass
+#========================================Visualization of the Data methods========================================
     
     def plot_energy(self, run_name):
         """
@@ -188,15 +184,111 @@ class Analysis:
         """
         energy = self.check_conservation_of_energy(run_name)
         length = len(energy)
-        time_step = np.array(range(length))
+        dt = self.runs[run_name]["dt"]
+        time_step = np.array(range(length)) * dt 
 
         plt.plot(time_step, energy)
         plt.title("Conservation of Energy")
-        plt.xlabel("Time Step")
+        plt.xlabel("Time(seconds)")
         plt.ylabel("Energy")
         plt.show()
 
-    #waiting for model
-    def plot_trajectories(self, label):
+
+    def plot_momentum(self, run_name):
+        """
+        Plots the magnitude of momentum vector against the timesteps
+        """
+        momentum = self.check_conservation_of_momentum(run_name)
+        length = len(momentum)
+        dt = self.runs[run_name]["dt"]
+        time_step = np.array(range(length)) * dt
+        magnitudes = [np.linalg.norm(m) for m in momentum]
+
+        plt.plot(time_step, magnitudes)
+        plt.title("Conservation of Momentum")
+        plt.xlabel("Time(seconds)")
+        plt.ylabel("Momentum Magnitude")
+        plt.show()
         pass
 
+
+    def plot_success_metrics(self, run_name):
+
+        pass
+
+    def compare_runs(self, run_1_name, run_2_name):
+        pass
+#==========================================================================================
+
+
+
+
+#========================================DART effectivenes methods=============================================
+    def calculate_interception_rate(self, run_name):
+        
+        num_intercepted = self.runs[run_name]["num_intercepted"]
+       
+
+        history = self.runs[run_name]["history"]
+
+        num_asteroids = 0
+        for body in history[0]:
+            if body.label == "asteroid":
+                num_asteroids += 1
+
+        if num_asteroids == 0:
+            return 0 
+        interception_rate = num_intercepted / num_asteroids * 100
+
+        return interception_rate
+
+
+    def calculate_failed_interception_rate(self, run_name):
+
+        num_interception_failed = self.runs[run_name]["num_intercepted_collided"]
+        history = self.runs[run_name]["history"]
+        num_asteroids = 0
+
+        for body in history[0]:
+            if body.label == "asteroid":
+                num_asteroids += 1
+
+        if num_asteroids == 0:
+            return 0 
+        
+        failed_interception_rate = num_interception_failed / num_asteroids * 100
+        return failed_interception_rate
+
+    def calculate_success_rate(self, run_name):
+        num_collided = self.runs[run_name]["num_asteroids_collided"]
+        history = self.runs[run_name]["history"]
+        num_asteroids = 0
+
+        for body in history[0]:
+            if body.label == "asteroid":
+                num_asteroids += 1
+
+        if num_asteroids == 0:
+            return 0 
+        
+        protection_rate = (num_asteroids - num_collided) / num_asteroids * 100
+        return protection_rate
+#=====================================================================================================
+
+
+#========================================Sensitivity Analysis=============================================
+
+    def dart_speed_analysis(self, speed_values):
+        """
+        Calls the Model seperatetly to anaylize different speeds for darts 
+        and see how it affects trackable data, aka num_intercepted, num_failed_interception and num_collided
+        """
+        pass
+
+    def dart_mass_analysis(self, mass_values):
+        """
+        Similar to speed analysis but analyzes the results with different dart masses
+        """
+        pass
+
+#=============================================================================================
