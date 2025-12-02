@@ -5,8 +5,8 @@ G = 6.674*10e-11 # Gravitational Constant
 class Body:
     """Body class, stores position, velocity, mass, and radius
     """
-    position = np.array([0, 0])
-    velocity = np.array([0, 0])
+    position = np.array([0, 0, 0])
+    velocity = np.array([0, 0, 0])
     mass: int = 0 # kg
     radius: int = 0 # meters
     mass = 0 # kg
@@ -58,6 +58,7 @@ class Body:
             dist = np.linalg.norm(r)
             
             if dist == 0: continue
+            
             
             acc += G * other.mass * r / dist**3 # derived formula from gravitational formula, F=ma, and unit vector
         return acc
