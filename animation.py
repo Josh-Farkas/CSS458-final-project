@@ -136,7 +136,8 @@ class Animation(object):
                 f"Body '{self.center_name}' not found in frame {frame}.")
 
         # Current x and y coordinates of centered body.
-        cx, cy = center_body.position
+        cx = center_body.position[0]
+        cy = center_body.position[1]
 
         # Correcting position of all bodies at current time step for
         # centered body = 0,0.
