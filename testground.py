@@ -89,5 +89,6 @@ def animation_test():
 
     animation = ani.Animation(time_steps_set)
     animation.animate(center="sun", save=False)
-    
-animation_test()
+
+if __name__ == "__main__":
+    animation_test()
