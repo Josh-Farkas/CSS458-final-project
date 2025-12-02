@@ -165,6 +165,7 @@ class Animation(object):
         xs = np.array([x for frame in all_centered for x in frame[0]])
         ys = np.array([y for frame in all_centered for y in frame[1]])
 
+        print(len(xs))
         # Determines furthest object from center.
         max_abs_x = max(abs(xs.min()), abs(xs.max()))
         max_abs_y = max(abs(ys.min()), abs(ys.max()))
