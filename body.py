@@ -50,7 +50,7 @@ class Body:
         Returns:
             np.ndarray: acceleration vector at the given position
         """        
-        acc = np.zeros(2)
+        acc = np.zeros(3)
         for other in self.model.bodies:
             if other is self: continue
             
@@ -75,8 +75,8 @@ class Body:
         Returns:
             np.ndarray: derivative of the state vector. [velx, vely, accx, accy].
         """ 
-        pos = state[:2]
-        vel = state[2:]
+        pos = state[:3]
+        vel = state[3:]
         return np.hstack((vel, self.acceleration(pos)))
 
     
@@ -94,8 +94,8 @@ class Body:
         
         # Calculate weighted average.
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
-        self.position = new_state[:2]
-        self.velocity = new_state[2:]
+        self.position = new_state[:3]
+        self.velocity = new_state[3:]
     
     
     def distance_to(self, other):
