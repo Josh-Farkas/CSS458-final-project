@@ -78,11 +78,26 @@ class Animation(object):
         self.set_size = len(bodies)
     
     def __update(self, frame):
+        '''
+        Description:
+        Function called by FuncAnimation to constantly update each
+        frame of our output animation.
+
+        Arguments:
+        * frame: Current time step of data_set.
+
+        Return:
+        Returns tuple of artists as required by blit.
+        '''
+        # Body positions after being corrected for centering.
         xs, ys = self.__get_centered_positions(frame)
+        # List of bodies at current time step.
         bodies = self.data_set[frame]
 
+        # Offsets the scatter plot by corrected values.
         self.scat.set_offsets(np.column_stack((xs, ys)))
 
+        # Creates label positions in correlation with body positions.
         for label, x, y, body in zip(self.labels, xs, ys, bodies):
             label.set_position((x, y))
             label.set_text(body.label)
@@ -92,42 +107,72 @@ class Animation(object):
     def __get_centered_positions(self, frame):
         '''
         Description:
-        
+        Finds the position of the center body attribute at a given
+        time step in the data_set attribute. Corrects the position
+        of all bodies at that timestep by finding the difference
+        between them and the center bodies position.
+
+        Arguments:
+        * frame: Current timestep for attribute data_set.
+
+        Return:
+        Returns the corrected x and y positions of all bodies in current frame
+        of data_set. Positions are corrected to have center attribute at 0,0,
+        while maintaining correct relative distances.
         '''
+        # List of bodies at current time step.
         bodies = self.data_set[frame]
 
+        # Finding target center body in body list.
         center_body = None
         for body in bodies:
             if body.label.lower() == self.center_name.lower():
                 center_body = body
                 break
-
+        
+        # Raises error if body is not found.
         if center_body is None:
             raise ValueError(
                 f"Body '{self.center_name}' not found in frame {frame}.")
 
+        # Current x and y coordinates of centered body.
         cx, cy = center_body.position
 
+        # Correcting position of all bodies at current time step for
+        # centered body = 0,0.
         xs = [b.position[0] - cx for b in bodies]
         ys = [b.position[1] - cy for b in bodies]
 
         return xs, ys
 
     def __create_plot(self):
+        '''
+        Description:
+        Parent function for creating an animation out of
+        class attribute data_set.
+
+        Return:
+        Returns a FuncAnimation complete with all time steps from
+        data_set class attribute.
+        '''
+        # List of center corrected body positions.
         all_centered = []
         for frame in range(self.set_size):
             xs, ys = self.__get_centered_positions(frame)
             all_centered.append((xs, ys))
 
+        # Updated x and y values for center corrected body positions.
         xs = np.array([x for frame in all_centered for x in frame[0]])
         ys = np.array([y for frame in all_centered for y in frame[1]])
 
+        # Determines furthest object from center.
         max_abs_x = max(abs(xs.min()), abs(xs.max()))
         max_abs_y = max(abs(ys.min()), abs(ys.max()))
         half_range = max(max_abs_x, max_abs_y)
 
-        pad = half_range * 0.2 if half_range != 0 else 1.0
-        lim = half_range + pad
+        # Sets grid limits to 1.2x furthest object's x or y distance,
+        # depending on which is greater.
+        lim = half_range * 1.2
         xlim = (-lim, lim)
         ylim = (-lim, lim)
 
@@ -135,6 +180,8 @@ class Animation(object):
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
 
+        # Stylizes grid and shifts perspective to four quadrants instead of one.
+        # Removes top and right line visibility.
         ax.spines['left'].set_position('zero')
         ax.spines['bottom'].set_position('zero')
         ax.spines['right'].set_color('none')
@@ -144,14 +191,18 @@ class Animation(object):
         ax.set_aspect('equal', adjustable='box')
         ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
 
+        # Scatterplot for __update function.
         self.scat = ax.scatter([], [])
         self.ax = ax
 
+        # Declaring class attribute list of text labels for each object in
+        # a data_set's element.
         self.labels = [
             ax.text(0, 0, "", fontsize=9, ha='left', va='bottom')
             for _ in range(len(self.data_set[0]))
         ]
 
+        # Final animation variable.
         ani = animation.FuncAnimation(
             fig,
             self.__update,
