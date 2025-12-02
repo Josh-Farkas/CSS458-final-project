@@ -9,27 +9,20 @@ class Body:
     velocity = np.array([0, 0])
     mass: int = 0 # kg
     radius: int = 0 # meters
-    body_type = None
     mass = 0 # kg
     radius = 0 # meters
     kinetic_energy = 0
     
     model = None
     
-    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, body_type="planet", label=""):
+    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, label=""):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
         self.radius = radius
         self.model = model
         self.label = label
-        self.body_type = body_type
         
-        ke = self.mass * np.linalg.norm(self.velocity**2)
-        print("Initial KE: ", ke)
-        
-        
-    
     
     def step(self):
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
