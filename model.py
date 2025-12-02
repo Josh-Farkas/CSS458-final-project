@@ -108,8 +108,8 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        # for t in range(1000):
-        #     self.step()
+        for t in range(100):
+            self.step()
         #     asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
         #     planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
         #     arrow.remove()
