@@ -1,6 +1,7 @@
+
 import numpy as np
 
-G = 6.674*10e-11 # Gravitational Constant
+G = 6.674*(10**(-11)) # Gravitational Constant
 
 class Body:
     """Body class, stores position, velocity, mass, and radius
@@ -33,12 +34,17 @@ class Body:
     def step(self):
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
         """
-        self.runge_kutta(True)
+        update_pos_vel = self.runge_kutta(dt=self.model.dt)
         
         for other in self.model.bodies:
             if other is self: continue
             if self.is_collided(other):
                 self.collide(other, elasticity=self.model.collision_elasticity)
+        
+        self.set_pos(update_pos_vel[0])
+        self.set_vel(update_pos_vel[1])
+
+        return update_pos_vel
     
     
     def acceleration(self, position):
@@ -98,8 +104,10 @@ class Body:
             
         # Calculate weighted average.
         new_state = state + self.model.dt/6 * (k1 + 2*k2 + 2*k3 + k4)
-        self.position = new_state[:3]
-        self.velocity = new_state[3:]
+        pos = new_state[:3]
+        vel = new_state[3:]
+
+        return pos, vel
     
     
     def k1(self):
@@ -184,5 +192,7 @@ class Body:
 
 
     def set_pos(self, pos_arr):
-        self.position[0] = pos_arr[0]
-        self.position[1] = pos_arr[1]
+        self.position = np.array(pos_arr)
+
+    def set_vel(self, vel_arr):
+        self.velocity = np.array(vel_arr)

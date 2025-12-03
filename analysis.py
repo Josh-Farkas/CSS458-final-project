@@ -19,8 +19,7 @@ Assumptions about Model
 import body
 import numpy as np
 import matplotlib.pyplot as plt
-
-
+from model import Model
 
 
 #========================================Data Storage methods=============================================
@@ -32,7 +31,7 @@ class Analysis:
 
 
 
-    def add_runs(self, name, history, num_intercepted, num_asteroids_collided, num_intercepted_collided, dt):
+    def add_runs(self, name, history, num_asteroids, num_intercepted, num_asteroids_collided, num_intercepted_collided, dt):
 
         """
         Takes one run adds its information into the dictionary to be used later.
@@ -40,9 +39,10 @@ class Analysis:
         """
         self.runs[name] = {
             "history" : history,
+            "num_asteroids": num_asteroids,
             "num_intercepted": num_intercepted, 
             "num_asteroids_collided": num_asteroids_collided,
-            "num_failed_interception": num_intercepted_collided,
+            "num_intercepted_collided": num_intercepted_collided,
             "dt": dt} 
 
     
@@ -74,8 +74,8 @@ class Analysis:
             if body_1_object is not None and body_2_object is not None:
                 if body_1_object.is_collided(body_2_object):
                     return collision_time_step
-                else:
-                    collision_time_step += 1 
+            
+            collision_time_step += 1 
 
         return None 
     
@@ -111,7 +111,10 @@ class Analysis:
                 mass_1 = body_1.mass
                 mass_2 = body_2.mass
                 distance = body_1.distance_to(body_2)
+                if distance == 0:
+                    continue 
                 potential_energy += -body.G * mass_1 * mass_2 / distance
+      
 
         return kinetic_energy + potential_energy
             
@@ -213,10 +216,32 @@ class Analysis:
 
 
     def plot_success_metrics(self, run_name):
-
-        pass
+        """
+        Plot success (protection rate) over time steps
+        """
+        history = self.runs[run_name]["history"]
+        dt = self.runs[run_name]["dt"]
+        
+        # Calculate success rate per timestep
+        success_rates = []
+        for bodies in history:
+            num_asteroids = sum(1 for b in bodies if "asteroid" in b.label)
+            num_collided = sum(1 for b in bodies if getattr(b, "collided", False))
+            if num_asteroids == 0:
+                success = 0
+            else:
+                success = (num_asteroids - num_collided) / num_asteroids * 100
+            success_rates.append(success)
+        
+        time_array = np.arange(len(history)) * dt
+        plt.plot(time_array, success_rates)
+        plt.title("Protection Rate over Time")
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Earth Protection (%)")
+        plt.show()
 
     def compare_runs(self, run_1_name, run_2_name):
+        
         pass
 #==========================================================================================
 
@@ -227,17 +252,11 @@ class Analysis:
     def calculate_interception_rate(self, run_name):
         
         num_intercepted = self.runs[run_name]["num_intercepted"]
-       
-
-        history = self.runs[run_name]["history"]
-
-        num_asteroids = 0
-        for body in history[0]:
-            if body.label == "asteroid":
-                num_asteroids += 1
+        num_asteroids = self.runs[run_name]["num_asteroids"]
 
         if num_asteroids == 0:
             return 0 
+        
         interception_rate = num_intercepted / num_asteroids * 100
 
         return interception_rate
@@ -246,12 +265,7 @@ class Analysis:
     def calculate_failed_interception_rate(self, run_name):
 
         num_interception_failed = self.runs[run_name]["num_intercepted_collided"]
-        history = self.runs[run_name]["history"]
-        num_asteroids = 0
-
-        for body in history[0]:
-            if body.label == "asteroid":
-                num_asteroids += 1
+        num_asteroids = self.runs[run_name]["num_asteroids"]
 
         if num_asteroids == 0:
             return 0 
@@ -259,14 +273,10 @@ class Analysis:
         failed_interception_rate = num_interception_failed / num_asteroids * 100
         return failed_interception_rate
 
+
     def calculate_success_rate(self, run_name):
         num_collided = self.runs[run_name]["num_asteroids_collided"]
-        history = self.runs[run_name]["history"]
-        num_asteroids = 0
-
-        for body in history[0]:
-            if body.label == "asteroid":
-                num_asteroids += 1
+        num_asteroids = self.runs[run_name]["num_asteroids"]
 
         if num_asteroids == 0:
             return 0 
@@ -292,3 +302,36 @@ class Analysis:
         pass
 
 #=============================================================================================
+
+
+    def run_single_test(self):
+
+        m = Model(collision_elasticity=0)
+        history = m.run()
+
+
+        # Store the results
+        self.add_runs(
+            "test_run",
+            history,
+            m.num_asteroids,
+            m.num_intercepted,
+            m.num_asteroids_collided,
+            m.num_intercepted_collided,
+            m.dt
+        )
+        
+        # Generate plots
+        self.plot_energy("test_run")
+        self.plot_momentum("test_run")
+        self.plot_success_metrics("test_run")
+        
+
+        print(f"\nInterception Rate: {self.calculate_interception_rate('test_run'):.2f}%")
+        print(f"Failed Interception Rate: {self.calculate_failed_interception_rate('test_run'):.2f}%")
+        print(f"Protection Rate: {self.calculate_success_rate('test_run'):.2f}%")
+
+
+if __name__ == "__main__":
+    analysis = Analysis()
+    analysis.run_single_test()

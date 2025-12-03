@@ -12,31 +12,31 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 100.0 # seconds
-    collision_elasticity = 1.0 # [0, 1] range
-    dart_mass = 610 # kg
-    dart_speed = 6600 # m/s
-    dart_distance = 11_000_000_000 # m, how far the dart is launched
+    # dt = 60.0 # seconds
+    # collision_elasticity = 1.0 # [0, 1] range
+    # dart_mass = 610 # kg
+    # dart_speed = 6600 # m/s
+    # dart_distance = 11_000_000_000 # m
     
-    num_small = 10
-    num_medium = 5
-    num_large = 3
-    num_asteroids = num_small + num_medium + num_large
+    # num_small = 10
+    # num_medium = 5
+    # num_large = 3
+    # num_asteroids = num_small + num_medium + num_large
     
-    asteroid_distance_mean = 2.0 * AU
-    asteroid_distance_SD = .3 * AU 
+    # asteroid_distance_mean = 2.0 * AU
+    # asteroid_distance_SD = .3 * AU 
     
-    asteroid_speed_mean = 21000 # m/s
-    asteroid_speed_SD = 3000
+    # asteroid_speed_mean = 21000 # m/s
+    # asteroid_speed_SD = 3000
     
-    asteroid_radius_small = 100 # m
-    asteroid_mass_small = 10e8 # kg
+    # asteroid_radius_small = 100 # m
+    # asteroid_mass_small = 10e8 # kg
     
-    asteroid_radius_medium = 1000 # m
-    asteroid_mass_medium = 10e11 # kg
+    # asteroid_radius_medium = 1000 # m
+    # asteroid_mass_medium = 10e11 # kg
     
-    asteroid_radius_large = 10000 # m
-    asteroid_mass_large = 10e13 # kg
+    # asteroid_radius_large = 10000 # m
+    # asteroid_mass_large = 10e13 # kg
     
     asteroid_small_detection_chance = 0.50
     asteroid_medium_detection_chance = 0.75
@@ -57,15 +57,46 @@ class Model:
     num_intercepted_collided = 0 # Failed interceptions
     time_elapsed = 0 # s
     
-    def __init__(self):
+    def __init__(self, dt=60.0, collision_elasticity = 1.0, 
+    dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
+    num_small = 10, num_medium = 5, num_large = 3,
+    asteroid_distance_mean = 2.0, asteroid_distance_SD = .3, 
+    asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
+    asteroid_radius_small = 100, asteroid_mass_small = 10e8,
+    asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
+    asteroid_radius_large = 10000, asteroid_mass_large = 10e13):
+        self.dt = dt
+        self.collision_elasticity = collision_elasticity
+        self.dart_mass = dart_mass
+        self.dart_speed = dart_speed
+        self.dart_distance = dart_distance
+        
+        self.num_small = num_small
+        self.num_medium = num_medium
+        self.num_large = num_large
+        self.num_asteroids = num_small + num_medium + num_large
+        
+        self.asteroid_distance_mean = asteroid_distance_mean * AU
+        self.asteroid_distance_SD = asteroid_distance_SD * AU 
+        
+        self.asteroid_speed_mean = asteroid_speed_mean
+        self.asteroid_speed_SD = asteroid_speed_SD
+        
+        self.asteroid_radius_small = asteroid_radius_small
+        self.asteroid_mass_small = asteroid_mass_small
+        
+        self.asteroid_radius_medium = asteroid_radius_medium
+        self.asteroid_mass_medium = asteroid_mass_medium
+        
+        self.asteroid_radius_large = asteroid_radius_large
+        self.asteroid_mass_large = asteroid_mass_large
         self.init_bodies()
 
-    
     def init_bodies(self):
         """Initialize all Body objects and add to bodies list
         """
         self.init_planets()
-        # self.init_asteroids()
+        self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
@@ -83,7 +114,7 @@ class Model:
         """
         distances = np.random.normal(self.asteroid_distance_mean, self.asteroid_distance_SD, self.num_asteroids)
         angles = np.random.uniform(0, 2*np.pi, self.num_asteroids)
-        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles)))
+        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0))
         
         speeds = np.random.normal(self.asteroid_speed_mean, self.asteroid_speed_SD, self.num_asteroids)
         directions = data.EARTH.position - positions
@@ -131,8 +162,9 @@ class Model:
         # plt.ioff()
         # plt.show()
         
-        anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate(multiplier=1.5)
+        return self.all_timestep_bodies
+        # anim = animation.Animation(self.all_timestep_bodies)
+        # anim.animate(multiplier=3, save=False)
 
     
     def step(self):
@@ -140,7 +172,7 @@ class Model:
         """
         b = []
         for body in self.bodies:
-            body.step()
+            updated_pos_vel = body.step()
             
             # Dart collision
             if body is Asteroid and body.distance_to(data.EARTH) < self.dart_distance:
@@ -149,14 +181,14 @@ class Model:
                 or body.radius == self.asteroid_radius_large and np.random.random() < self.asteroid_large_detection_chance:
                     self.launch_dart(body)
                     
-                
-            
             b.append(copy.deepcopy(body))
         self.all_timestep_bodies.append(b) # Save snapshot of this step
         self.time_elapsed += self.dt
-        print("Time Elapsed (hours): ", self.time_elapsed/3600)            
-    
-    
+        print("Time Elapsed (hours): ", self.time_elapsed/3600)                
+        self.all_timestep_bodies.append(b) # Save snapshot of this step
+        self.bodies = self.all_timestep_bodies[-1]
+        # print(data.SUN.position)
+            
     
     def launch_dart(self, asteroid):
         """Launches a DART at a given Asteroid
