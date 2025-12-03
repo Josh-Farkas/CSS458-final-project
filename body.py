@@ -25,7 +25,7 @@ class Body:
     def step(self):
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
         """
-        self.runge_kutta(dt=self.model.dt)
+        update_pos_vel = self.runge_kutta(dt=self.model.dt)
         
         for other in self.model.bodies:
             if other is self: continue
@@ -37,6 +37,8 @@ class Body:
         energy_loss = self.kinetic_energy - ke
         self.kinetic_energy = ke
         # print(energy_loss)
+
+        return update_pos_vel
     
     
     def acceleration(self, position):
@@ -92,8 +94,11 @@ class Body:
         
         # Calculate weighted average.
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
-        self.position = new_state[:3]
-        self.velocity = new_state[3:]
+        pos = new_state[:3]
+        vel = new_state[3:]
+        print(pos)
+
+        return pos, vel
     
     
     def distance_to(self, other):
@@ -155,5 +160,7 @@ class Body:
 
 
     def set_pos(self, pos_arr):
-        self.position[0] = pos_arr[0]
-        self.position[1] = pos_arr[1]
+        self.position = np.array(pos_arr)
+
+    def set_vel(self, vel_arr):
+        self.velocity = np.array(vel_arr)

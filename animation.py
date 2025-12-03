@@ -203,7 +203,7 @@ class Animation(object):
             fig,
             self.__update,
             frames=self.set_size,
-            interval=10,
+            interval=60,
             repeat=True,
             blit=True
         )
@@ -254,7 +254,7 @@ class Animation(object):
             print(f"Saving animation to {filename}...")
             ani.save(
                 filename,
-                fps=15,
+                fps=60,
                 dpi=150,
                 writer="pillow"
             )

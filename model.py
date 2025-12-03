@@ -56,7 +56,6 @@ class Model:
     def __init__(self):
         self.init_bodies()
 
-    
     def init_bodies(self):
         """Initialize all Body objects and add to bodies list
         """
@@ -124,7 +123,7 @@ class Model:
         # plt.show()
         
         anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate(multiplier=1.5)
+        anim.animate(multiplier=1.5, save=False)
 
     
     def step(self):
@@ -132,9 +131,13 @@ class Model:
         """
         b = []
         for body in self.bodies:
-            body.step()
-            b.append(copy.deepcopy(body))
+            updated_pos_vel = body.step()
+            copy_body = copy.deepcopy(body)
+            copy_body.position = np.copy(updated_pos_vel[0])
+            copy_body.velocity = np.copy(updated_pos_vel[1])
+            b.append(copy_body)
         self.all_timestep_bodies.append(b) # Save snapshot of this step
+        self.bodies = self.all_timestep_bodies[-1]
         # print(data.SUN.position)
             
     
