@@ -20,6 +20,7 @@ import body
 import numpy as np
 import matplotlib.pyplot as plt
 from model import Model
+import animation
 
 
 #========================================Data Storage methods=============================================
@@ -84,6 +85,19 @@ class Analysis:
 
    #========================================Verification Methods-Physcis related=====================================         
 
+    def relative_error(self, v1, v2):
+        """Calculates the relative error of two values
+
+        Args:
+            v1 (float): True value
+            v2 (float): Tested value
+
+        Returns:
+            float: The relative error between values as a percentage
+        """
+        return (v1 - v2) / v1
+
+
     def calculate_total_energy(self, bodies):
         """
         Calculates the sum of kinetic energy  and potential energy for all bodies
@@ -130,7 +144,7 @@ class Analysis:
         for time_step in history:
             bodies = time_step
             energy.append(self.calculate_total_energy(bodies))
-
+        
         return energy
 
 
@@ -188,7 +202,10 @@ class Analysis:
         energy = self.check_conservation_of_energy(run_name)
         length = len(energy)
         dt = self.runs[run_name]["dt"]
-        time_step = np.array(range(length)) * dt 
+        time_step = np.array(range(length)) * dt
+        
+        err = self.relative_error(energy[0], energy[-1])
+        print(f'Energy Relative Error: {err}')
 
         plt.plot(time_step, energy)
         plt.title("Conservation of Energy")
@@ -207,12 +224,14 @@ class Analysis:
         time_step = np.array(range(length)) * dt
         magnitudes = [np.linalg.norm(m) for m in momentum]
 
+        err = self.relative_error(magnitudes[0], magnitudes[-1])
+        print(f'Momentum Relative Error: {err}')
+
         plt.plot(time_step, magnitudes)
         plt.title("Conservation of Momentum")
         plt.xlabel("Time(seconds)")
         plt.ylabel("Momentum Magnitude")
         plt.show()
-        pass
 
 
     def plot_success_metrics(self, run_name):
@@ -322,8 +341,7 @@ class Analysis:
 
 
     def run_single_test(self):
-
-        m = Model(collision_elasticity=0)
+        m = Model(collision_elasticity=1)
         history = m.run()
 
 
