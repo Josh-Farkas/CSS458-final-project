@@ -203,7 +203,7 @@ class Animation(object):
             fig,
             self.__update,
             frames=self.set_size,
-            interval=50,
+            interval=10,
             repeat=True,
             blit=True
         )

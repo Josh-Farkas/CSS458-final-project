@@ -1,6 +1,6 @@
 import numpy as np
 
-G = 6.674*10e-11 # Gravitational Constant
+G = 6.674*(10**(-11)) # Gravitational Constant
 
 class Body:
     """Body class, stores position, velocity, mass, and radius
