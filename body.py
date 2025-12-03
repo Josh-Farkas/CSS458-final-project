@@ -27,10 +27,10 @@ class Body:
         """
         self.position, self.velocity = self.runge_kutta(dt=self.model.dt)
         
-        # for other in self.model.bodies:
-        #     if other is self: continue
-        #     if self.is_collided(other):
-        #         self.collide(other, elasticity=self.model.collision_elasticity)
+        for other in self.model.bodies:
+            if other is self: continue
+            if self.is_collided(other):
+                self.collide(other)
         
         
         # ke = self.mass * np.linalg.norm(self.velocity**2)
@@ -120,7 +120,7 @@ class Body:
         return self.distance_to(other) < (self.radius + other.radius)
 
 
-    def collide(self, other, elasticity=1.0):
+    def collide(self, other):
         """Apply collision to two bodies and update their velocities
 
         Args:
@@ -128,6 +128,7 @@ class Body:
             elasticity (float, optional): The elasticty of the collision in the range [0, 1], 
                                           1.0 is perfectly elastic. Defaults to 1.0.
         """
+        elasticity = self.model.collision_elasticity
         dist = self.distance_to(other)
         if dist == 0 or dist > self.radius + other.radius: return
         contact_normal = (other.position - self.position) / dist # normal vector pointing from body1 to body2

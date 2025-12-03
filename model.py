@@ -176,7 +176,7 @@ class Model:
         for i, body1 in enumerate(self.bodies):
             for body2 in self.bodies[i+1:]:
                 if body1.is_collided(body2):
-                    body1.collide(body2, elasticity=self.collision_elasticity)
+                    body1.collide(body2)
             
     
     def launch_dart(self, asteroid):
