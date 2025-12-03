@@ -96,7 +96,6 @@ class Body:
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
         pos = new_state[:3]
         vel = new_state[3:]
-        print(pos)
 
         return pos, vel
     
