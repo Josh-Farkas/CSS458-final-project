@@ -56,12 +56,44 @@ class Model:
     def __init__(self):
         self.init_bodies()
 
-    def init_bodies(self):
+    def init_bodies(self, dt=60.0, collision_elasticity = 1.0, 
+    dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
+    num_small = 10, num_medium = 5, num_large = 3,
+    asteroid_distance_mean = 2.0, asteroid_distance_SD = .3, 
+    asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
+    asteroid_radius_small = 100, asteroid_mass_small = 10e8,
+    asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
+    asteroid_radius_large = 10000, asteroid_mass_large = 10e13):
         """Initialize all Body objects and add to bodies list
         """
         self.init_planets()
         self.init_asteroids()
         self.bodies = self.planets + self.asteroids
+        self.dt = dt
+        self.collision_elasticity = collision_elasticity
+        self.dart_mass = dart_mass
+        self.dart_speed = dart_speed
+        self.dart_distance = dart_distance
+        
+        self.num_small = num_small
+        self.num_medium = num_medium
+        self.num_large = num_large
+        self.num_asteroids = num_small + num_medium + num_large
+        
+        self.asteroid_distance_mean = asteroid_distance_mean * AU
+        self.asteroid_distance_SD = asteroid_distance_SD * AU 
+        
+        self.asteroid_speed_mean = asteroid_speed_mean
+        self.asteroid_speed_SD = asteroid_speed_SD
+        
+        self.asteroid_radius_small = asteroid_radius_small
+        self.asteroid_mass_small = asteroid_mass_small
+        
+        self.asteroid_radius_medium = asteroid_radius_medium
+        self.asteroid_mass_medium = asteroid_mass_medium
+        
+        self.asteroid_radius_large = asteroid_radius_large
+        self.asteroid_mass_large = asteroid_mass_large
     
     
     def init_planets(self):
