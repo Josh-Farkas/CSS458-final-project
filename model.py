@@ -154,8 +154,9 @@ class Model:
         # plt.ioff()
         # plt.show()
         
-        anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate(multiplier=3, save=False)
+        return self.all_timestep_bodies
+        # anim = animation.Animation(self.all_timestep_bodies)
+        # anim.animate(multiplier=3, save=False)
 
     
     def step(self):
@@ -190,5 +191,5 @@ class Model:
 
        
        
-model = Model()
-model.run()
+# model = Model()
+# model.run()
