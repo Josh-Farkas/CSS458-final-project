@@ -1,4 +1,3 @@
-
 from body import Body
 from planet import Planet
 from dart import Dart
@@ -13,11 +12,11 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 100.0 # seconds
+    dt = 1000.0 # seconds
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 610 # kg
     dart_speed = 6600 # m/s
-    dart_distance = 11_000_000_000 # m
+    dart_distance = 11_000_000_000 # m, how far the dart is launched
     
     num_small = 10
     num_medium = 5
@@ -39,6 +38,10 @@ class Model:
     asteroid_radius_large = 10000 # m
     asteroid_mass_large = 10e13 # kg
     
+    asteroid_small_detection_chance = 0.50
+    asteroid_medium_detection_chance = 0.75
+    asteroid_large_detection_chance = 1.0
+    
     
     # End Tunable Parameters
     
@@ -52,6 +55,7 @@ class Model:
     num_intercepted = 0
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
+    time_elapsed = 0 # s
     
     def __init__(self):
         self.init_bodies()
@@ -99,32 +103,34 @@ class Model:
     
     
     def run(self):
-        # fig, ax = plt.subplots(figsize=(6,6))
-        # planet_scatter = ax.scatter([], [], s=10, c="Blue")
-        # asteroid_scatter = ax.scatter([], [], s=3, c="Red")
+        """Runs the model
+        """
+        fig, ax = plt.subplots(figsize=(6,6))
+        planet_scatter = ax.scatter([], [], s=10, c="Blue")
+        asteroid_scatter = ax.scatter([], [], s=3, c="Red")
         
-        # plt.ion()
-        # plt.autoscale(False)
-        # ax.set_ybound(-5*AU, 5*AU)
-        # ax.set_xbound(-5*AU, 5*AU)
-        # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
+        plt.ion()
+        plt.autoscale(False)
+        ax.set_ybound(-5*AU, 5*AU)
+        ax.set_xbound(-5*AU, 5*AU)
+        arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
         for t in range(100):
             self.step()
-        #     asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
-        #     planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
-        #     arrow.remove()
-        #     arrow = ax.arrow(*data.EARTH.position[::-1], *(data.EARTH.velocity[::-1] * 1000),
-        #                     width=1e10,      # shaft thickness
-        #                     head_width=1e10, # head width
-        #                     head_length=1e10, # head length
-        #                     color='red')
-        #     plt.pause(0.01)
+            asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
+            planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
+            arrow.remove()
+            arrow = ax.arrow(*data.EARTH.position[::-1], *(data.EARTH.velocity[::-1] * 1000),
+                            width=1e10,      # shaft thickness
+                            head_width=1e10, # head width
+                            head_length=1e10, # head length
+                            color='red')
+            plt.pause(0.01)
 
-        # plt.ioff()
-        # plt.show()
+        plt.ioff()
+        plt.show()
         
-        anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate()
+        # anim = animation.Animation(self.all_timestep_bodies)
+        # anim.animate()
 
     
     def step(self):
@@ -133,10 +139,20 @@ class Model:
         b = []
         for body in self.bodies:
             body.step()
+            
+            # Dart collision
+            if body is Asteroid and body.distance_to(data.EARTH) < self.dart_distance:
+                if body.radius == self.asteroid_radius_small and np.random.random() < self.asteroid_small_detection_chance \
+                or body.radius == self.asteroid_radius_medium and np.random.random() < self.asteroid_medium_detection_chance \
+                or body.radius == self.asteroid_radius_large and np.random.random() < self.asteroid_large_detection_chance:
+                    self.launch_dart(body)
+                    
+                
+            
             b.append(copy.deepcopy(body))
         self.all_timestep_bodies.append(b) # Save snapshot of this step
-        print(data.SUN.position)
-            
+        self.time_elapsed += self.dt
+        print("Time Elapsed (hours): ", self.time_elapsed/3600)            
     
     def launch_dart(self, asteroid):
         """Launches a DART at a given Asteroid
