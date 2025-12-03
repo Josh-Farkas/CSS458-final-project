@@ -60,7 +60,7 @@ class Model:
         """Initialize all Body objects and add to bodies list
         """
         self.init_planets()
-        # self.init_asteroids()
+        self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
@@ -77,7 +77,7 @@ class Model:
         """
         distances = np.random.normal(self.asteroid_distance_mean, self.asteroid_distance_SD, self.num_asteroids)
         angles = np.random.uniform(0, 2*np.pi, self.num_asteroids)
-        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles)))
+        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0))
         
         speeds = np.random.normal(self.asteroid_speed_mean, self.asteroid_speed_SD, self.num_asteroids)
         directions = data.EARTH.position - positions
@@ -107,7 +107,7 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        for t in range(2000):
+        for t in range(500):
             self.step()
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
@@ -123,7 +123,7 @@ class Model:
         # plt.show()
         
         anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate(multiplier=1.5, save=False)
+        anim.animate(multiplier=3, save=False)
 
     
     def step(self):
