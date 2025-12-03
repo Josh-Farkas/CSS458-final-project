@@ -21,6 +21,7 @@ import body
 import model
 import data
 import pytest
+import numpy as np
 
 # Analysis Module Tests
 ##############################
@@ -72,8 +73,33 @@ def test_center_arg(capsys):
 # Body Module Tests
 ##############################
 
-def test_temp():
-    pass
+# Set up testing model environment
+
+
+def test_acceleration():
+    test_model = model.Model()
+    test_model.dt = 1
+    b1 = body.Body(np.array([0, 0, 0]),   np.array([0, 0, 0]), 1, 1, test_model)
+    b2 = body.Body(np.array([100, 0, 0]), np.array([0, 0, 0]), 10, 1, test_model)
+    test_model.bodies = [b1, b2]
+    test_model.planets = [b1, b2]
+    test_model.asteroids.clear()
+    b = test_model.bodies[0]
+    print(b.acceleration(b.position))
+    assert np.isclose(b.acceleration(b.position)[0], 6.674e-13, rtol=.01)
+    
+    
+def test_runge_kutta():
+    test_model = model.Model()
+    test_model.dt = 1
+    test_model.bodies = [data.EARTH, data.SUN]
+    test_model.planets = [data.EARTH, data.SUN]
+    test_model.asteroids.clear()
+    b = test_model.bodies[0]
+    for t in range(100):
+        b.runge_kutta()
+        print(t, b.position, b.velocity)
+    assert 1 == 2
 
 # Model Module Tests
 ##############################

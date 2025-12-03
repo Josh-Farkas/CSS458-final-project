@@ -12,7 +12,7 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 1000.0 # seconds
+    dt = 100.0 # seconds
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 610 # kg
     dart_speed = 6600 # m/s
@@ -77,6 +77,7 @@ class Model:
         for planet in self.planets:
             planet.model = self
     
+    
     def init_asteroids(self):
         """Initialize all asteroids with parameters based on Model parameters
         """
@@ -116,6 +117,7 @@ class Model:
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
         for t in range(500):
             self.step()
+            print(data.EARTH.position)
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
             # arrow.remove()
@@ -172,6 +174,6 @@ class Model:
         asteroid.collide(dart)
 
        
-       
-model = Model()
-model.run()
+if __name__ == "__main__":
+    model = Model()
+    model.run()
