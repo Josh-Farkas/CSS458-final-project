@@ -33,9 +33,9 @@ class Body:
                 self.collide(other, elasticity=self.model.collision_elasticity)
         
         
-        # ke = self.mass * np.linalg.norm(self.velocity**2)
-        # energy_loss = self.kinetic_energy - ke
-        # self.kinetic_energy = ke
+        ke = self.mass * np.linalg.norm(self.velocity**2)
+        energy_loss = self.kinetic_energy - ke
+        self.kinetic_energy = ke
         # print(energy_loss)
 
         return update_pos_vel

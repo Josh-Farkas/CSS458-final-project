@@ -218,27 +218,44 @@ class Analysis:
     def plot_success_metrics(self, run_name):
         """
         Plot success (protection rate) over time steps
+        WITHOUT modifying Body or Model.
         """
         history = self.runs[run_name]["history"]
         dt = self.runs[run_name]["dt"]
-        
-        # Calculate success rate per timestep
+
         success_rates = []
-        for bodies in history:
-            num_asteroids = sum(1 for b in bodies if "asteroid" in b.label)
-            num_collided = sum(1 for b in bodies if getattr(b, "collided", False))
+
+        for timestep in history:
+            # Identify asteroids
+            asteroids = [b for b in timestep if "asteroid" in b.label]
+            num_asteroids = len(asteroids)
+
             if num_asteroids == 0:
-                success = 0
-            else:
-                success = (num_asteroids - num_collided) / num_asteroids * 100
+                success_rates.append(0)
+                continue
+
+            # Count asteroids that collide with any other body
+            num_collided = 0
+            for asteroid in asteroids:
+                collided = any(
+                    asteroid.is_collided(other) 
+                    for other in timestep if other is not asteroid
+                )
+                if collided:
+                    num_collided += 1
+
+            # Success rate = % of asteroids that did NOT collide
+            success = (num_asteroids - num_collided) / num_asteroids * 100
             success_rates.append(success)
-        
+
+        # Time array
         time_array = np.arange(len(history)) * dt
         plt.plot(time_array, success_rates)
         plt.title("Protection Rate over Time")
         plt.xlabel("Time (seconds)")
         plt.ylabel("Earth Protection (%)")
         plt.show()
+
 
     def compare_runs(self, run_1_name, run_2_name):
         
