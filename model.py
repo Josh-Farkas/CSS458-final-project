@@ -13,31 +13,31 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 60.0 # seconds
-    collision_elasticity = 1.0 # [0, 1] range
-    dart_mass = 610 # kg
-    dart_speed = 6600 # m/s
-    dart_distance = 11_000_000_000 # m
+    # dt = 60.0 # seconds
+    # collision_elasticity = 1.0 # [0, 1] range
+    # dart_mass = 610 # kg
+    # dart_speed = 6600 # m/s
+    # dart_distance = 11_000_000_000 # m
     
-    num_small = 10
-    num_medium = 5
-    num_large = 3
-    num_asteroids = num_small + num_medium + num_large
+    # num_small = 10
+    # num_medium = 5
+    # num_large = 3
+    # num_asteroids = num_small + num_medium + num_large
     
-    asteroid_distance_mean = 2.0 * AU
-    asteroid_distance_SD = .3 * AU 
+    # asteroid_distance_mean = 2.0 * AU
+    # asteroid_distance_SD = .3 * AU 
     
-    asteroid_speed_mean = 21000 # m/s
-    asteroid_speed_SD = 3000
+    # asteroid_speed_mean = 21000 # m/s
+    # asteroid_speed_SD = 3000
     
-    asteroid_radius_small = 100 # m
-    asteroid_mass_small = 10e8 # kg
+    # asteroid_radius_small = 100 # m
+    # asteroid_mass_small = 10e8 # kg
     
-    asteroid_radius_medium = 1000 # m
-    asteroid_mass_medium = 10e11 # kg
+    # asteroid_radius_medium = 1000 # m
+    # asteroid_mass_medium = 10e11 # kg
     
-    asteroid_radius_large = 10000 # m
-    asteroid_mass_large = 10e13 # kg
+    # asteroid_radius_large = 10000 # m
+    # asteroid_mass_large = 10e13 # kg
     
     
     # End Tunable Parameters
@@ -53,10 +53,7 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self):
-        self.init_bodies()
-
-    def init_bodies(self, dt=60.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=60.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 10, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 2.0, asteroid_distance_SD = .3, 
@@ -64,11 +61,6 @@ class Model:
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13):
-        """Initialize all Body objects and add to bodies list
-        """
-        self.init_planets()
-        self.init_asteroids()
-        self.bodies = self.planets + self.asteroids
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -94,6 +86,14 @@ class Model:
         
         self.asteroid_radius_large = asteroid_radius_large
         self.asteroid_mass_large = asteroid_mass_large
+        self.init_bodies()
+
+    def init_bodies(self):
+        """Initialize all Body objects and add to bodies list
+        """
+        self.init_planets()
+        self.init_asteroids()
+        self.bodies = self.planets + self.asteroids
     
     
     def init_planets(self):
