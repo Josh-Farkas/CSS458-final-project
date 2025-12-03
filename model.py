@@ -154,24 +154,29 @@ class Model:
         # plt.ioff()
         # plt.show()
         
-        return self.all_timestep_bodies
         # anim = animation.Animation(self.all_timestep_bodies)
         # anim.animate(multiplier=3, save=False)
+
+        return self.all_timestep_bodies
 
     
     def step(self):
         """Runs one timestep of the simulation.
         """
-        b = []
         for body in self.bodies:
-            updated_pos_vel = body.step()
-            copy_body = copy.deepcopy(body)
-            copy_body.position = np.copy(updated_pos_vel[0])
-            copy_body.velocity = np.copy(updated_pos_vel[1])
-            b.append(copy_body)
-        self.all_timestep_bodies.append(b) # Save snapshot of this step
-        self.bodies = self.all_timestep_bodies[-1]
-        # print(data.SUN.position)
+            body.step()
+
+        self.handle_collisions()
+        
+        self.all_timestep_bodies.append(copy.deepcopy(self.bodies))
+
+    def handle_collisions(self):
+        """Check and resolve all collisions between bodies.
+        """
+        for i, body1 in enumerate(self.bodies):
+            for body2 in self.bodies[i+1:]:
+                if body1.is_collided(body2):
+                    body1.collide(body2, elasticity=self.collision_elasticity)
             
     
     def launch_dart(self, asteroid):
