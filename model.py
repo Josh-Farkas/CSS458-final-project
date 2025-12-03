@@ -108,7 +108,7 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        for t in range(100):
+        for t in range(500):
             self.step()
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
@@ -124,7 +124,7 @@ class Model:
         # plt.show()
         
         anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate()
+        anim.animate(multiplier=1.5)
 
     
     def step(self):
@@ -135,7 +135,7 @@ class Model:
             body.step()
             b.append(copy.deepcopy(body))
         self.all_timestep_bodies.append(b) # Save snapshot of this step
-        print(data.SUN.position)
+        # print(data.SUN.position)
             
     
     def launch_dart(self, asteroid):

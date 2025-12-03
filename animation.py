@@ -55,7 +55,7 @@ class Animation(object):
     * set_size: Number of elements in data_set's outer list.
     '''
     
-    def __init__(self, bodies):
+    def __init__(self, bodies, AU=149_597_900_000):
         '''
         Description:
         Initiates class with bodies arg and size of bodies as attributes.
@@ -73,9 +73,11 @@ class Animation(object):
         [earth, mars, ...],
         ...
         ]
+        * AU: Astronomical Unit in meters
         '''
         self.data_set = np.array(bodies, dtype=object)
         self.set_size = len(bodies)
+        self.AU = AU
     
     def __update(self, frame):
         '''
@@ -166,20 +168,13 @@ class Animation(object):
         xs = np.array([x for frame in all_centered for x in frame[0]])
         ys = np.array([y for frame in all_centered for y in frame[1]])
 
-        # Determines furthest object from center.
-        max_abs_x = max(abs(xs.min()), abs(xs.max()))
-        max_abs_y = max(abs(ys.min()), abs(ys.max()))
-        half_range = max(max_abs_x, max_abs_y)
-
-        # Sets grid limits to 1.2x furthest object's x or y distance,
-        # depending on which is greater.
-        lim = half_range * 1.2
-        xlim = (-lim, lim)
-        ylim = (-lim, lim)
+        xlim = (-self.AU * self.multiplier, self.AU * self.multiplier)
+        ylim = (-self.AU * self.multiplier, self.AU * self.multiplier)
 
         fig, ax = plt.subplots()
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
+        ax.set_title("Planetary orbits measured in meters")
 
         # Stylizes grid and shifts perspective to four quadrants instead of one.
         # Removes top and right line visibility.
@@ -208,14 +203,15 @@ class Animation(object):
             fig,
             self.__update,
             frames=self.set_size,
-            interval=300,
+            interval=50,
             repeat=True,
             blit=True
         )
 
         return ani
 
-    def animate(self, center="sun", save=False, filename='animation.gif'):
+    def animate(self, center="sun", multiplier=1,
+                save=False, filename='animation.gif'):
         '''
         Description:
         Driver function for animation creation. Performs error checking on
@@ -227,6 +223,11 @@ class Animation(object):
         Animation is saved in the same working directory.
         * filename: Name of the file the animation will be saved as.
         Note: Formats other than .gif are not tested and not intended.
+        * multiplier: Animation window defaults to 1 AU x 1 AU. multiplier
+        directly modifies the AU value in order to zoom in or out.
+        Reference values for multiplier:
+        1.6 = Sun, Mercury, Venus, Earth, Mars
+        32 = All Planets
 
         Output:
         * Creates an animation using the class attribute data_set. data_set
@@ -242,6 +243,7 @@ class Animation(object):
             return
 
         # Sets class attribute to be used by __get_center_positions().
+        self.multiplier = multiplier
         self.center_name = center
 
         # Call to receive animation.

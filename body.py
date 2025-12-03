@@ -9,8 +9,6 @@ class Body:
     velocity = np.array([0, 0, 0])
     mass: int = 0 # kg
     radius: int = 0 # meters
-    mass = 0 # kg
-    radius = 0 # meters
     kinetic_energy = 0
     
     model = None
