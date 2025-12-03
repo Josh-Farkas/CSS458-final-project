@@ -5,7 +5,7 @@ Data Source: NASA JPL Solar System Dynamics
 https://ssd.jpl.nasa.gov/planets/phys_par.html
 
 
-Position in meters from Sun, approx positions as of 12/27/2025
+Position in meters from Sun Barycenter, approx positions as of 12/02/2025
 Velocities in m/s 
 Mass in kg
 Radius in meters
@@ -14,78 +14,114 @@ Radius in meters
 import numpy as np
 from body import Body
 
-# Tuple Format: position[], velocities[], mass, radius)
+# Class Declaration Format: position[], velocities[], mass, radius)
 # Position and velocities are represented as 2d numpy array where [x,y]
-# Sun is the origin
+# Sun Barycenter is the origin
 
 SUN = Body(
-    np.array([0.0, 0.0]),           # position (m)
-    np.array([0.0, 0.0]),           # velocity (m/s)
-    1.98847e30,                      # mass (kg)
-    696000000,                        # radius (m)
+    np.array([-4.912509968506466E+05,
+              -8.279409221788045E+05,
+              2.030927949683764E+04])*1000, # position (m)
+    np.array([1.256877255382410E-02,
+              -1.875201878732409E-04,
+              -2.361621323724686E-04])*1000, # velocity (m/s)
+    1988410 * (10**24),                      # mass (kg)
+    695700000,                               # radius (m)
     label='sun'
 )
 
 MERCURY = Body(
-    np.array([4.65e10, 3.51e10]),
-    np.array([-4.10e4, 4.55e4]),
-    3.30103e23,
+    np.array([-3.127905203130432E+07,
+              3.707015264084680E+07,
+              5.941269181199174E+06])*1000,
+    np.array([-4.764788163702398E+01, 
+              -2.879379513298748E+01,
+              2.018070743648478E+00])*1000,
+    3.302 * (10**23),
     2439400,
     label='mercury'
 )
 
 VENUS = Body(
-    np.array([-1.08e11, 7.20e9]),
-    np.array([-3.50e3, -3.50e4]),
-    4.86731e24,
-    6051800,
+    np.array([-7.100525604293682E+07, 
+              -8.298028263639985E+07,
+              2.960309946473137E+06])*1000,
+    np.array([2.634000410811250E+01, 
+              -2.297367049642995E+01,
+              -1.834943863497573E+00])*1000,
+    48.685 * (10**23),
+    6051840,
     label='venus'
 )
 
 EARTH = Body(
-    np.array([1.43e11, -4.50e10]),
-    np.array([9.00e3, 2.85e4]),
-    5.97217e24,
-    6371008,
+    np.array([5.069379549453425E+07, 
+              1.375054744509470E+08,
+              1.151560320044309E+04])*1000,
+    np.array([-2.840196971889024E+01, 
+              1.021414113586683E+01,
+              -1.488297191186927E-03])*1000,
+    5.97219 * (10**24),
+    6371010,
     label='earth'
 )
 
 MARS = Body(
-    np.array([-1.89e11, -1.33e11]),
-    np.array([1.54e4, -1.90e4]),
-    6.41691e23,
-    3389500,
+    np.array([-1.423802149405333E+07, 
+              -2.192041434103926E+08,
+              -4.218834066101000E+06])*1000,
+    np.array([2.511067074504107E+01, 
+              5.611375252231812E-01,
+              -6.039220588521095E-01])*1000,
+    6.4171 * (10**23),
+    3389920,
     label='mars'
 )
 
 JUPITER = Body(
-    np.array([6.30e11, 4.80e11]),
-    np.array([-8.10e3, 1.05e4]),
-    1.898125e27,
+    np.array([-2.212310300393372E+08, 
+              7.452555485526739E+08,
+              1.859826285290599E+06])*1000,
+    np.array([-1.268030476659128E+01, 
+              -3.098540562049134E+00,
+              2.965822834198970E-01])*1000,
+    18.9819 * (10**26),
     69911000,
     label='jupiter'
 )
 
 SATURN = Body(
-    np.array([1.20e12, -7.15e11]),
-    np.array([4.50e3, 7.70e3]),
-    5.68317e26,
+    np.array([1.423645667959634E+09, 
+              1.274995759213873E+07,
+              -5.690487668482484E+07])*1000,
+    np.array([-6.194387066563424E-01, 
+              9.637222604990116E+00,
+              -1.424033538497236E-01])*1000,
+    5.6834 * (10**26),
     58232000,
     label='saturn'
 )
 
 URANUS = Body(
-    np.array([2.45e12, 1.68e12]),
-    np.array([-4.00e3, 5.30e3]),
-    8.68099e25,
+    np.array([1.492933220128212E+09, 
+              2.504247387219565E+09,
+              -1.004061600583434E+07])*1000,
+    np.array([-5.899749274100404E+00, 
+              3.169770118761888E+00,
+              8.802438155742909E-02])*1000,
+    86.813 * (10**24),
     25362000,
     label='uranus'
 )
 
 NEPTUNE = Body(
-    np.array([4.27e12, -1.57e12]),
-    np.array([1.95e3, 5.10e3]),
-    1.024092e26,
-    24622000,
+    np.array([4.468659313464899E+09, 
+              6.263445189699627E+07,
+              -1.042746683317846E+08])*1000,
+    np.array([-1.117320270554806E-01, 
+              5.466428548501646E+00,
+              -1.106969340110495E-01])*1000,
+    102.409 * (10**24),
+    24624000,
     label='neptune'
 )

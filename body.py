@@ -5,12 +5,10 @@ G = 6.674*10e-11 # Gravitational Constant
 class Body:
     """Body class, stores position, velocity, mass, and radius
     """
-    position = np.array([0, 0])
-    velocity = np.array([0, 0])
+    position = np.array([0, 0, 0])
+    velocity = np.array([0, 0, 0])
     mass: int = 0 # kg
     radius: int = 0 # meters
-    mass = 0 # kg
-    radius = 0 # meters
     kinetic_energy = 0
     
     model = None
@@ -45,7 +43,7 @@ class Body:
         Returns:
             np.ndarray: acceleration vector at the given position
         """        
-        acc = np.zeros(2)
+        acc = np.zeros(3)
         for other in self.model.bodies:
             if other is self: continue
             
@@ -53,6 +51,7 @@ class Body:
             dist = np.linalg.norm(r)
             
             if dist == 0: continue
+            
             
             acc += G * other.mass * r / dist**3 # derived formula from gravitational formula, F=ma, and unit vector
         return acc
@@ -69,8 +68,8 @@ class Body:
         Returns:
             np.ndarray: derivative of the state vector. [velx, vely, accx, accy].
         """ 
-        pos = state[:2]
-        vel = state[2:]
+        pos = state[:3]
+        vel = state[3:]
         return np.hstack((vel, self.acceleration(pos)))
 
     
@@ -88,8 +87,8 @@ class Body:
         
         # Calculate weighted average.
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
-        self.position = new_state[:2]
-        self.velocity = new_state[2:]
+        self.position = new_state[:3]
+        self.velocity = new_state[3:]
     
     
     def distance_to(self, other):
