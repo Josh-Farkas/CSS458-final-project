@@ -25,20 +25,18 @@ class Body:
     def step(self):
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
         """
-        update_pos_vel = self.runge_kutta(dt=self.model.dt)
+        self.position, self.velocity = self.runge_kutta(dt=self.model.dt)
         
         for other in self.model.bodies:
             if other is self: continue
             if self.is_collided(other):
-                self.collide(other, elasticity=self.model.collision_elasticity)
+                self.collide(other)
         
         
         ke = self.mass * np.linalg.norm(self.velocity**2)
         energy_loss = self.kinetic_energy - ke
         self.kinetic_energy = ke
         # print(energy_loss)
-
-        return update_pos_vel
     
     
     def acceleration(self, position):
@@ -90,7 +88,7 @@ class Body:
         k1 = dt * self.state_deriv(state)
         k2 = dt * self.state_deriv(state + k1/2)
         k3 = dt * self.state_deriv(state + k2/2)
-        k4 = self.state_deriv(state + dt*k3)
+        k4 = dt * self.state_deriv(state + k3)
         
         # Calculate weighted average.
         new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
@@ -122,7 +120,7 @@ class Body:
         return self.distance_to(other) < (self.radius + other.radius)
 
 
-    def collide(self, other, elasticity=1.0):
+    def collide(self, other):
         """Apply collision to two bodies and update their velocities
 
         Args:
@@ -130,6 +128,7 @@ class Body:
             elasticity (float, optional): The elasticty of the collision in the range [0, 1], 
                                           1.0 is perfectly elastic. Defaults to 1.0.
         """
+        elasticity = self.model.collision_elasticity
         dist = self.distance_to(other)
         if dist == 0 or dist > self.radius + other.radius: return
         contact_normal = (other.position - self.position) / dist # normal vector pointing from body1 to body2

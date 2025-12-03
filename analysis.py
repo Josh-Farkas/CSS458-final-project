@@ -20,6 +20,7 @@ import body
 import numpy as np
 import matplotlib.pyplot as plt
 from model import Model
+import animation
 
 
 #========================================Data Storage methods=============================================
@@ -322,8 +323,7 @@ class Analysis:
 
 
     def run_single_test(self):
-
-        m = Model(collision_elasticity=0)
+        m = Model(collision_elasticity=1)
         history = m.run()
 
 
