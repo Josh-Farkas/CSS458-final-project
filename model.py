@@ -13,7 +13,7 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 100.0 # seconds
+    dt = 60.0 # seconds
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 610 # kg
     dart_speed = 6600 # m/s
@@ -108,7 +108,7 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        for t in range(500):
+        for t in range(2000):
             self.step()
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
