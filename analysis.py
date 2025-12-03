@@ -19,8 +19,7 @@ Assumptions about Model
 import body
 import numpy as np
 import matplotlib.pyplot as plt
-
-
+from model import Model
 
 
 #========================================Data Storage methods=============================================
@@ -286,3 +285,35 @@ class Analysis:
         pass
 
 #=============================================================================================
+
+
+    def run_single_test(self):
+
+        m = Model()
+        data = m.run()
+
+        # Store the results
+        self.add_runs(
+            "test_run",
+            data.all_timestep_bodies,
+            data.num_asteroids,
+            data.num_intercepted,
+            data.num_asteroids_collided,
+            data.num_intercepted_collided,
+            data.dt
+        )
+
+        
+        # Generate plots
+        self.plot_energy("test_run")
+        self.plot_momentum("test_run")
+        self.plot_success_metrics("test_run")
+        
+
+        print(f"\nInterception Rate: {self.calculate_interception_rate('test_run'):.2f}%")
+        print(f"Failed Interception Rate: {self.calculate_failed_interception_rate('test_run'):.2f}%")
+        print(f"Protection Rate: {self.calculate_success_rate('test_run'):.2f}%")
+
+if __name__ == "__main__":
+    analysis = Analysis()
+    analysis.run_single_test()
