@@ -241,31 +241,21 @@ class Analysis:
         """
         history = self.runs[run_name]["history"]
         dt = self.runs[run_name]["dt"]
+        total_asteroids = self.runs[run_name]["num_asteroids"]
 
         success_rates = []
 
         for timestep in history:
             # Identify asteroids
-            asteroids = [b for b in timestep if "asteroid" in b.label]
-            num_asteroids = len(asteroids)
+            asteroids_remaining = len([b for b in timestep if "asteroid" in b.label])
+            
 
-            if num_asteroids == 0:
-                success_rates.append(0)
-                continue
-
-            # Count asteroids that collide with any other body
-            num_collided = 0
-            for asteroid in asteroids:
-                collided = any(
-                    asteroid.is_collided(other) 
-                    for other in timestep if other is not asteroid
-                )
-                if collided:
-                    num_collided += 1
-
-            # Success rate = % of asteroids that did NOT collide
-            success = (num_asteroids - num_collided) / num_asteroids * 100
-            success_rates.append(success)
+            if total_asteroids == 0:
+                success_rates.append(100)
+            else:
+                # Success rate = % of asteroids that did NOT collide
+                success = (asteroids_remaining / total_asteroids) * 100
+                success_rates.append(success)
 
         # Time array
         time_array = np.arange(len(history)) * dt
