@@ -13,7 +13,7 @@ AU = 149_597_900_000 # Astronomical Unit in meters
 
 class Model:
     # Tunable Parameters
-    dt = 100.0 # seconds
+    dt = 60.0 # seconds
     collision_elasticity = 1.0 # [0, 1] range
     dart_mass = 610 # kg
     dart_speed = 6600 # m/s
@@ -56,7 +56,6 @@ class Model:
     def __init__(self):
         self.init_bodies()
 
-    
     def init_bodies(self):
         """Initialize all Body objects and add to bodies list
         """
@@ -78,7 +77,7 @@ class Model:
         """
         distances = np.random.normal(self.asteroid_distance_mean, self.asteroid_distance_SD, self.num_asteroids)
         angles = np.random.uniform(0, 2*np.pi, self.num_asteroids)
-        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles)))
+        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0))
         
         speeds = np.random.normal(self.asteroid_speed_mean, self.asteroid_speed_SD, self.num_asteroids)
         directions = data.EARTH.position - positions
@@ -108,23 +107,23 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        for t in range(100):
+        for t in range(500):
             self.step()
-        #     asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
-        #     planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
-        #     arrow.remove()
-        #     arrow = ax.arrow(*data.EARTH.position[::-1], *(data.EARTH.velocity[::-1] * 1000),
-        #                     width=1e10,      # shaft thickness
-        #                     head_width=1e10, # head width
-        #                     head_length=1e10, # head length
-        #                     color='red')
-        #     plt.pause(0.01)
+            # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
+            # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
+            # arrow.remove()
+            # arrow = ax.arrow(*data.EARTH.position[::-1], *(data.EARTH.velocity[::-1] * 1000),
+                           #  width=1e10,      # shaft thickness
+                           #  head_width=1e10, # head width
+                           #  head_length=1e10, # head length
+                           #  color='red')
+            # plt.pause(0.01)
 
         # plt.ioff()
         # plt.show()
         
         anim = animation.Animation(self.all_timestep_bodies)
-        anim.animate()
+        anim.animate(multiplier=3, save=False)
 
     
     def step(self):
@@ -132,10 +131,14 @@ class Model:
         """
         b = []
         for body in self.bodies:
-            body.step()
-            b.append(copy.deepcopy(body))
+            updated_pos_vel = body.step()
+            copy_body = copy.deepcopy(body)
+            copy_body.position = np.copy(updated_pos_vel[0])
+            copy_body.velocity = np.copy(updated_pos_vel[1])
+            b.append(copy_body)
         self.all_timestep_bodies.append(b) # Save snapshot of this step
-        print(data.SUN.position)
+        self.bodies = self.all_timestep_bodies[-1]
+        # print(data.SUN.position)
             
     
     def launch_dart(self, asteroid):
