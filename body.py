@@ -1,4 +1,3 @@
-
 import numpy as np
 
 G = 6.674*(10**(-11)) # Gravitational Constant
@@ -12,17 +11,9 @@ class Body:
     radius: int = 0 # meters
     kinetic_energy = 0
     
-    # Velocity, Acceleration arrays for Runge-Kutta timestepping
-    k1 = np.array([[0, 0], [0, 0]])
-    k2 = np.array([[0, 0], [0, 0]])
-    k3 = np.array([[0, 0], [0, 0]])
-    k4 = np.array([[0, 0], [0, 0]])
-    
-    
     model = None
     
     def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, label=""):
-        """"""
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
@@ -34,17 +25,18 @@ class Body:
     def step(self):
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
         """
-        update_pos_vel = self.runge_kutta(dt=self.model.dt)
+        self.position, self.velocity = self.runge_kutta(dt=self.model.dt)
         
         for other in self.model.bodies:
             if other is self: continue
             if self.is_collided(other):
-                self.collide(other, elasticity=self.model.collision_elasticity)
+                self.collide(other)
         
-        self.set_pos(update_pos_vel[0])
-        self.set_vel(update_pos_vel[1])
-
-        return update_pos_vel
+        
+        # ke = self.mass * np.linalg.norm(self.velocity**2)
+        # energy_loss = self.kinetic_energy - ke
+        # self.kinetic_energy = ke
+        # print(energy_loss)
     
     
     def acceleration(self, position):
@@ -76,60 +68,35 @@ class Body:
         We already have velocity so we don't need to calculate the derivative of position.
 
         Args:
-            state (np.ndarray): state vector of position and velocity. [x, y, z, velx, vely, velz].
+            state (np.ndarray): state vector of position and velocity. [x, y, velx, vely].
         
         Returns:
-            np.ndarray: derivative of the state vector. [velx, vely, velz, accx, accy, accz].
+            np.ndarray: derivative of the state vector. [velx, vely, accx, accy].
         """ 
         pos = state[:3]
         vel = state[3:]
         return np.hstack((vel, self.acceleration(pos)))
 
     
-    def runge_kutta(self, euler_only=False):
+    def runge_kutta(self, dt):
         """Runge-Kutta timestepping method. Updates position and velocity.
 
         Args:
             dt (float, optional): Timestep length in seconds.
         """
         state = np.hstack((self.position, self.velocity))
-
-        k1 = self.model.dt * self.state_deriv(state)
-        self.position = k1[:3]
-        self.velocity = k1[3:]
+        k1 = dt * self.state_deriv(state)
+        k2 = dt * self.state_deriv(state + k1/2)
+        k3 = dt * self.state_deriv(state + k2/2)
+        k4 = dt * self.state_deriv(state + k3)
         
-        k2 = self.model.dt * self.state_deriv(state + k1/2)
-        k3 = self.model.dt * self.state_deriv(state + k2/2)
-        k4 = self.state_deriv(state + self.model.dt*k3)
-            
         # Calculate weighted average.
-        new_state = state + self.model.dt/6 * (k1 + 2*k2 + 2*k3 + k4)
+        new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
         pos = new_state[:3]
         vel = new_state[3:]
 
         return pos, vel
     
-    
-    def k1(self):
-        state = np.hstack((self.position, self.velocity))
-        self.k1 = self.model.dt * self.state_deriv(state)
-        self.position = self.k1[:3]
-        self.velocity = self.k1[3:]
-    
-    
-    def k2(self):
-        state = np.hstack((self.position, self.velocity))
-        k2 = self.model.dt * self.state_deriv(state + self.k1/2)
-
-    
-    def k3(self):
-        state = np.hstack((self.position, self.velocity))
-        self.k3 = self.model.dt * self.state_deriv(state + self.k2/2)
-
-    
-    def k4(self):
-        state = np.hstack((self.position, self.velocity))
-        self.k4 = self.state_deriv(state + self.model.dt*self.k3)
     
     def distance_to(self, other):
         """Returns the Euclidian distance between two objects.
@@ -161,14 +128,13 @@ class Body:
             elasticity (float, optional): The elasticty of the collision in the range [0, 1], 
                                           1.0 is perfectly elastic. Defaults to 1.0.
         """
+        elasticity = self.model.collision_elasticity
         dist = self.distance_to(other)
         if dist == 0 or dist > self.radius + other.radius: return
-        
         contact_normal = (other.position - self.position) / dist # normal vector pointing from body1 to body2
-        
         v_rel = np.dot((other.velocity - self.velocity), contact_normal) # Relative velocity along normal
         if v_rel >= 0: return # Do not collide if bodies are moving away from each other
-        impulse = -1.0 * ((1 + self.model.collision_elasticity) * v_rel) / (1 / self.mass + 1 / other.mass) * contact_normal
+        impulse = -1.0 * ((1 + elasticity) * v_rel) / (1 / self.mass + 1 / other.mass) * contact_normal
         
         # Update Body velocities
         self.velocity -= impulse / self.mass

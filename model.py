@@ -1,3 +1,4 @@
+
 from body import Body
 from planet import Planet
 from dart import Dart
@@ -38,10 +39,6 @@ class Model:
     # asteroid_radius_large = 10000 # m
     # asteroid_mass_large = 10e13 # kg
     
-    asteroid_small_detection_chance = 0.50
-    asteroid_medium_detection_chance = 0.75
-    asteroid_large_detection_chance = 1.0
-    
     
     # End Tunable Parameters
     
@@ -55,7 +52,6 @@ class Model:
     num_intercepted = 0
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
-    time_elapsed = 0 # s
     
     def __init__(self, dt=60.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
@@ -108,7 +104,6 @@ class Model:
         for planet in self.planets:
             planet.model = self
     
-    
     def init_asteroids(self):
         """Initialize all asteroids with parameters based on Model parameters
         """
@@ -135,8 +130,6 @@ class Model:
     
     
     def run(self):
-        """Runs the model
-        """
         # fig, ax = plt.subplots(figsize=(6,6))
         # planet_scatter = ax.scatter([], [], s=10, c="Blue")
         # asteroid_scatter = ax.scatter([], [], s=3, c="Red")
@@ -148,7 +141,6 @@ class Model:
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
         for t in range(500):
             self.step()
-            print(data.EARTH.position)
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
             # arrow.remove()
@@ -162,32 +154,29 @@ class Model:
         # plt.ioff()
         # plt.show()
         
-        return self.all_timestep_bodies
         # anim = animation.Animation(self.all_timestep_bodies)
         # anim.animate(multiplier=3, save=False)
+
+        return self.all_timestep_bodies
 
     
     def step(self):
         """Runs one timestep of the simulation.
         """
-        b = []
         for body in self.bodies:
-            updated_pos_vel = body.step()
-            
-            # Dart collision
-            if body is Asteroid and body.distance_to(data.EARTH) < self.dart_distance:
-                if body.radius == self.asteroid_radius_small and np.random.random() < self.asteroid_small_detection_chance \
-                or body.radius == self.asteroid_radius_medium and np.random.random() < self.asteroid_medium_detection_chance \
-                or body.radius == self.asteroid_radius_large and np.random.random() < self.asteroid_large_detection_chance:
-                    self.launch_dart(body)
-                    
-            b.append(copy.deepcopy(body))
-        self.all_timestep_bodies.append(b) # Save snapshot of this step
-        self.time_elapsed += self.dt
-        print("Time Elapsed (hours): ", self.time_elapsed/3600)                
-        self.all_timestep_bodies.append(b) # Save snapshot of this step
-        self.bodies = self.all_timestep_bodies[-1]
-        # print(data.SUN.position)
+            body.step()
+
+        self.handle_collisions()
+        
+        self.all_timestep_bodies.append(copy.deepcopy(self.bodies))
+
+    def handle_collisions(self):
+        """Check and resolve all collisions between bodies.
+        """
+        for i, body1 in enumerate(self.bodies):
+            for body2 in self.bodies[i+1:]:
+                if body1.is_collided(body2):
+                    body1.collide(body2)
             
     
     def launch_dart(self, asteroid):
@@ -206,6 +195,6 @@ class Model:
         asteroid.collide(dart)
 
        
-if __name__ == "__main__":
-    model = Model()
-    model.run()
+       
+# model = Model()
+# model.run()
