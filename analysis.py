@@ -439,7 +439,6 @@ class Analysis:
         Args:
             seed (float): random seed
         """
-        from asteroid import Asteroid
         # Model with no DARTs
         m_base = Model(seed=seed, dart_mass=610, duration=3600*24*1, dt=60, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
         h = m_base.run()
@@ -458,9 +457,7 @@ class Analysis:
             for j, b1, b2 in zip(range(num_asteroids), end_base, end):
                 offset = b1.position - b2.position
                 dist = np.linalg.norm(offset)
-                print(dist)
                 distances[j] = dist
-            print("SIZE: ", distances.size())
             mean = np.mean(distances)
             all_distances[im] = mean
             

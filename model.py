@@ -144,39 +144,15 @@ class Model:
             self.asteroids.append(a)
     
     
-    def run(self, animate=False):
-        # fig, ax = plt.subplots(figsize=(6,6))
-        # planet_scatter = ax.scatter([], [], s=10, c="Blue")
-        # asteroid_scatter = ax.scatter([], [], s=3, c="Red")
-        
-        # plt.ion()
-        # plt.autoscale(False)
-        # ax.set_ybound(-5*AU, 5*AU)
-        # ax.set_xbound(-5*AU, 5*AU)
-        # arrow = ax.arrow(*self.earth.position, *(self.earth.velocity * 1000))
+    def run(self, animate=False, zoom=3):
         for t in range(int(self.duration / self.dt)):
             self.step()
-            # print("EARTH DISTANCE: ", self.earth.distance_to(data.SUN) / AU)
-            
-            # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
-            # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
-            # arrow.remove()
-            # arrow = ax.arrow(*self.earth.position[::-1], *(self.earth.velocity[::-1] * 1000),
-                           #  width=1e10,      # shaft thickness
-                           #  head_width=1e10, # head width
-                           #  head_length=1e10, # head length
-                           #  color='red')
-            # plt.pause(0.01)
-            
-        # plt.ioff()
-        # plt.show()
 
-
-        self.verification_check()
+        # self.verification_check()
         
         if animate:
             anim = animation.Animation(self.all_timestep_bodies)
-            anim.animate(multiplier=3, save=False)
+            anim.animate(multiplier=zoom, save=False)
 
         return self.all_timestep_bodies
 
@@ -214,6 +190,8 @@ class Model:
         if body is not Asteroid: return
         if body.will_be_intercepted and not body.intercepted and body.distance_to(self.earth) < self.dart_distance:
             self.launch_dart(body)
+        elif body.distance_to(self.earth) < self.dart_distance:
+            print("Within Range but no Collision")
     
     def launch_dart(self, asteroid):
         """Launches a DART at a given Asteroid
@@ -225,9 +203,10 @@ class Model:
         dir = asteroid.position - self.earth.position / asteroid.distance_to(self.earth)
         pos = asteroid.position - dir * asteroid.radius # spawn dart colliding with asteroid
         vel = dir * self.dart_speed
-        dart = Dart(pos, vel, self.dart_mass, self.dart_radius, self)
+        dart = Dart(pos, vel, self.dart_mass, 1.0, self)
         
         # Immediately calculate collision
+        print("DART Collision")
         asteroid.collide(dart)
 
     def verification_check(self):
@@ -247,5 +226,5 @@ class Model:
 
        
 if __name__ == "__main__":       
-    model = Model(seed=1, dt=60000, duration=3600*24*365, dart_mass=data.EARTH.mass) # 1 year model
-    model.run(animate=True)
+    model = Model(seed=1, dt=60*60*24, duration=3600*24*365, dart_mass=data.EARTH.mass, dart_speed = 1000000, small_detection=1, medium_detection=1) # 1 year model
+    model.run(animate=True, zoom=5)
