@@ -477,12 +477,31 @@ class Analysis:
         plt.show()
         
 
+    def asteroids_within_range(self, range=149_597_900_000*.01):
+        AU = 149_597_900_000
+        asteriod_spawn_dists = [.1*AU, .2*AU, .3*AU, .4*AU, .5*AU, AU, 2*AU, 3*AU]
+        nums = np.zeros(len(asteriod_spawn_dists))
+        for x, dist in enumerate(asteriod_spawn_dists):
+            print(x, dist)
+            m = Model(dart_distance=range, asteroid_distance_mean=dist, asteroid_distance_SD=.3*dist, dart_speed=0, small_detection=1, medium_detection=1, num_small=100, num_medium=0, num_large=0, duration=3600*24*20, seed=x)
+            history = m.run()
+            nums[x] = m.num_intercepted
+            del m          
+
+        
+        plt.plot(asteriod_spawn_dists, nums)
+        plt.title("Asteroid Spawn Distance vs Percent within 0.01AU")
+        plt.xlabel("Asteroid Spawn Distance (m)")
+        plt.ylabel("Percent within 0.01AU")
+        plt.grid(True, alpha=0.3)
+        plt.show()
+
 
 #=============================================================================================
 
     def run_sensitivity_test(self):
-        self.body_offset_analysis()
-        
+        # self.body_offset_analysis()
+        self.asteroids_within_range()
         
         # speeds = np.linspace(3000, 10000, 3)
         # self.dart_speed_analysis(speeds)

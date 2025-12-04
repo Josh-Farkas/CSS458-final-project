@@ -95,6 +95,7 @@ class Animation(object):
         xs, ys = self.__get_centered_positions(frame)
         # List of bodies at current time step.
         bodies = self.data_set[frame]
+        
 
         # Offsets the scatter plot by corrected values.
         self.planet_scat.set_offsets(np.column_stack((xs[:9], ys[:9])))

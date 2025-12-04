@@ -42,9 +42,6 @@ class Model:
     
     # End Tunable Parameters
     
-    bodies = []
-    planets = []
-    asteroids = []
     
     all_timestep_bodies = [] # [bodies at time 1, bodies at time 2...]
     
@@ -56,13 +53,16 @@ class Model:
     def __init__(self, dt=60*60*24, collision_elasticity = 1.0, 
     dart_mass = 580, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 10, num_medium = 5, num_large = 3,
-    asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
+    asteroid_distance_mean = 1.0*AU, asteroid_distance_SD = .3*AU, 
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
     small_detection = 0.5, medium_detection=.75, large_detection=1.0,
     duration=3600*24*365, seed=0):
+        self.bodies = []
+        self.planets = []
+        self.asteroids = []
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -74,8 +74,8 @@ class Model:
         self.num_large = num_large
         self.num_asteroids = num_small + num_medium + num_large
         
-        self.asteroid_distance_mean = asteroid_distance_mean * AU
-        self.asteroid_distance_SD = asteroid_distance_SD * AU 
+        self.asteroid_distance_mean = asteroid_distance_mean
+        self.asteroid_distance_SD = asteroid_distance_SD
         
         self.asteroid_speed_mean = asteroid_speed_mean
         self.asteroid_speed_SD = asteroid_speed_SD
