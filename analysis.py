@@ -85,6 +85,19 @@ class Analysis:
 
    #========================================Verification Methods-Physcis related=====================================         
 
+    def relative_error(self, v1, v2):
+        """Calculates the relative error of two values
+
+        Args:
+            v1 (float): True value
+            v2 (float): Tested value
+
+        Returns:
+            float: The relative error between values as a percentage
+        """
+        return (v1 - v2) / v1
+
+
     def calculate_total_energy(self, bodies):
         """
         Calculates the sum of kinetic energy  and potential energy for all bodies
@@ -131,7 +144,7 @@ class Analysis:
         for time_step in history:
             bodies = time_step
             energy.append(self.calculate_total_energy(bodies))
-
+        
         return energy
 
 
@@ -189,7 +202,10 @@ class Analysis:
         energy = self.check_conservation_of_energy(run_name)
         length = len(energy)
         dt = self.runs[run_name]["dt"]
-        time_step = np.array(range(length)) * dt 
+        time_step = np.array(range(length)) * dt
+        
+        err = self.relative_error(energy[0], energy[-1])
+        print(f'Energy Relative Error: {err}')
 
         plt.plot(time_step, energy)
         plt.title("Conservation of Energy")
@@ -208,12 +224,14 @@ class Analysis:
         time_step = np.array(range(length)) * dt
         magnitudes = [np.linalg.norm(m) for m in momentum]
 
+        err = self.relative_error(magnitudes[0], magnitudes[-1])
+        print(f'Momentum Relative Error: {err}')
+
         plt.plot(time_step, magnitudes)
         plt.title("Conservation of Momentum")
         plt.xlabel("Time(seconds)")
         plt.ylabel("Momentum Magnitude")
         plt.show()
-        pass
 
 
     def plot_success_metrics(self, run_name):
@@ -223,31 +241,21 @@ class Analysis:
         """
         history = self.runs[run_name]["history"]
         dt = self.runs[run_name]["dt"]
+        total_asteroids = self.runs[run_name]["num_asteroids"]
 
         success_rates = []
 
         for timestep in history:
             # Identify asteroids
-            asteroids = [b for b in timestep if "asteroid" in b.label]
-            num_asteroids = len(asteroids)
+            asteroids_remaining = len([b for b in timestep if "asteroid" in b.label])
+            
 
-            if num_asteroids == 0:
-                success_rates.append(0)
-                continue
-
-            # Count asteroids that collide with any other body
-            num_collided = 0
-            for asteroid in asteroids:
-                collided = any(
-                    asteroid.is_collided(other) 
-                    for other in timestep if other is not asteroid
-                )
-                if collided:
-                    num_collided += 1
-
-            # Success rate = % of asteroids that did NOT collide
-            success = (num_asteroids - num_collided) / num_asteroids * 100
-            success_rates.append(success)
+            if total_asteroids == 0:
+                success_rates.append(100)
+            else:
+                # Success rate = % of asteroids that did NOT collide
+                success = (asteroids_remaining / total_asteroids) * 100
+                success_rates.append(success)
 
         # Time array
         time_array = np.arange(len(history)) * dt
@@ -257,6 +265,7 @@ class Analysis:
         plt.ylabel("Earth Protection (%)")
         plt.show()
 
+        
 
     def compare_runs(self, run_1_name, run_2_name):
         
@@ -311,15 +320,170 @@ class Analysis:
         Calls the Model seperatetly to anaylize different speeds for darts 
         and see how it affects trackable data, aka num_intercepted, num_failed_interception and num_collided
         """
-        pass
+ 
+        interception_rates = []
+        failed_interception_rates = []
+        protection_rates = []
+
+        for speed in speed_values:
+            m = Model(dart_speed = speed, collision_elasticity = 1)
+
+            history = m.run()
+
+            run_name = f"speed_{speed}"
+            self.add_runs(run_name, 
+                    history, 
+                    m.num_asteroids,
+                    m.num_intercepted, 
+                    m.num_asteroids_collided, 
+                    m.num_intercepted_collided, 
+                    m.dt)
+
+            #calculate Metrics 
+            interception_rates.append(self.calculate_interception_rate(run_name))
+            failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+            protection_rates.append(self.calculate_success_rate(run_name))
+
+            # Plot results
+        plt.figure(figsize=(12, 5))
+        
+        # Subplot 1: Interception Rate
+        plt.subplot(1, 3, 1)
+        plt.plot(speed_values, interception_rates, marker='o', linewidth=2, color='blue')
+        plt.title("Interception Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 2: Failed Interceptions
+        plt.subplot(1, 3, 2)
+        plt.plot(speed_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
+        plt.title("Failed Interception Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Failed Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 3: Protection Rate
+        plt.subplot(1, 3, 3)
+        plt.plot(speed_values, protection_rates, marker='o', linewidth=2, color='green')
+        plt.title("Protection Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Protection Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
+
 
     def dart_mass_analysis(self, mass_values):
+
         """
         Similar to speed analysis but analyzes the results with different dart masses
         """
-        pass
+        interception_rates = []
+        failed_interception_rates = []
+        protection_rates = []
+
+        for mass in mass_values:
+            m = Model(dart_mass = mass, collision_elasticity = 1)
+
+            history = m.run()
+
+            run_name = f"mass{mass}"
+            self.add_runs(run_name, 
+                    history, 
+                    m.num_asteroids,
+                    m.num_intercepted, 
+                    m.num_asteroids_collided, 
+                    m.num_intercepted_collided, 
+                    m.dt)
+        
+        interception_rates.append(self.calculate_interception_rate(run_name))
+        failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+        protection_rates.append(self.calculate_success_rate(run_name))
+
+            # Plot results
+        plt.figure(figsize=(12, 5))
+        
+        # Subplot 1: Interception Rate
+        plt.subplot(1, 3, 1)
+        plt.plot(mass_values, interception_rates, marker='o', linewidth=2, color='blue')
+        plt.title("Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 2: Failed Interceptions
+        plt.subplot(1, 3, 2)
+        plt.plot(mass_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
+        plt.title("Failed Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Failed Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 3: Protection Rate
+        plt.subplot(1, 3, 3)
+        plt.plot(mass_values, protection_rates, marker='o', linewidth=2, color='green')
+        plt.title("Protection Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Protection Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
+
+
+    def body_offset_analysis(self, seed=1):
+        """Compares Body ending positions in two different models with the same seed
+
+        Args:
+            seed (float): random seed
+        """
+        from asteroid import Asteroid
+        # Model with no DARTs
+        m_base = Model(seed=seed, dart_mass=610, duration=3600, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
+        
+        end_base = m_base.run()[-1][9:] # Ignore planets (first 9)
+        num_asteroids = len(end_base)
+        masses = [100, 200, 300, 600, 900, 1200, 1500, 1800]
+        # masses = [300, 600, 900]
+        all_distances = np.zeros((len(masses),))
+        for im, mass in enumerate(masses):
+            print(f"Testing Mass: {mass}")
+            m = Model(seed=seed, duration=3600, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            end = m.run()[-1][9:]
+        
+            distances = np.zeros((num_asteroids,))
+            # Get distance of all bodies
+            for j, b1, b2 in zip(range(num_asteroids), end_base, end):
+                offset = b1.position - b2.position
+                dist = np.linalg.norm(offset)
+                print(dist)
+                distances[j] = dist
+            mean = np.mean(distances)
+            all_distances[im] = mean
+            
+        plt.plot(masses, all_distances)
+        plt.title("DART mass vs Asteroid Offset Distance")
+        plt.xlabel("DART Mass (kg)")
+        plt.ylabel("Asteroid Offset (m)")
+        plt.grid(True, alpha=0.3)
+        plt.show()
+        
+        
+        
 
 #=============================================================================================
+
+    def run_sensitivity_test(self):
+
+        speeds = np.linspace(5000, 7000, 3)
+        self.dart_speed_analysis(speeds)
+
+
+        masses = np.linspace(500, 700, 3)
+        self.dart_mass_analysis(masses)
+
 
 
     def run_single_test(self):
@@ -352,3 +516,6 @@ class Analysis:
 if __name__ == "__main__":
     analysis = Analysis()
     analysis.run_single_test()
+
+    analysis.run_sensitivity_test()
+

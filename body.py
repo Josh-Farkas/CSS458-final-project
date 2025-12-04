@@ -13,7 +13,7 @@ class Body:
     
     model = None
     
-    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, label=""):
+    def __init__(self, pos, vel, mass, radius, model=None, label=""):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass
@@ -26,17 +26,13 @@ class Body:
         """Runs one step of the simulation. Applies Runge-Kutta timestep and then applies collisions.
         """
         self.position, self.velocity = self.runge_kutta(dt=self.model.dt)
-        
-        for other in self.model.bodies:
-            if other is self: continue
-            if self.is_collided(other):
-                self.collide(other)
+
         
         
-        ke = self.mass * np.linalg.norm(self.velocity**2)
-        energy_loss = self.kinetic_energy - ke
-        self.kinetic_energy = ke
-        # print(energy_loss)
+        # for other in self.model.bodies:
+        #     if other is self: continue
+        #     if self.is_collided(other):
+        #         self.collide(other)
     
     
     def acceleration(self, position):
@@ -91,7 +87,7 @@ class Body:
         k4 = dt * self.state_deriv(state + k3)
         
         # Calculate weighted average.
-        new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
+        new_state = state + 1/6 * (k1 + 2*k2 + 2*k3 + k4)
         pos = new_state[:3]
         vel = new_state[3:]
 
