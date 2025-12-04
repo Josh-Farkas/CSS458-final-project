@@ -398,9 +398,9 @@ class Analysis:
                     m.num_intercepted_collided, 
                     m.dt)
         
-            interception_rates.append(self.calculate_interception_rate(run_name))
-            failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
-            protection_rates.append(self.calculate_success_rate(run_name))
+        interception_rates.append(self.calculate_interception_rate(run_name))
+        failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+        protection_rates.append(self.calculate_success_rate(run_name))
 
             # Plot results
         plt.figure(figsize=(12, 5))
@@ -440,7 +440,7 @@ class Analysis:
         self.dart_speed_analysis(speeds)
 
 
-        masses = [610, 1220, 2440, 4880, 9760]
+        masses = np.linspace(500, 700, 3)
         self.dart_mass_analysis(masses)
 
 
