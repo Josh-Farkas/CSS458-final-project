@@ -1,8 +1,6 @@
 import numpy as np
 from body import Body
 from dart import Dart
-from planet import Planet
-import data
 
 class Asteroid(Body):
     

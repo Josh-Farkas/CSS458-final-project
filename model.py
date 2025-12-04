@@ -53,8 +53,8 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=60000.0, collision_elasticity = 1.0, 
-    dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
+    def __init__(self, dt=60*60*24, collision_elasticity = 1.0, 
+    dart_mass = 580, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 10, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
@@ -187,12 +187,11 @@ class Model:
         Args:
             body (Body): The body to check
         """
-        if body is not Asteroid: return
+        if (type(body) != Asteroid):
+            return
         if body.will_be_intercepted and not body.intercepted and body.distance_to(self.earth) < self.dart_distance:
             self.launch_dart(body)
-        elif body.distance_to(self.earth) < self.dart_distance:
-            print("Within Range but no Collision")
-    
+
     def launch_dart(self, asteroid):
         """Launches a DART at a given Asteroid
 
@@ -200,13 +199,13 @@ class Model:
             asteroid (Asteroid): Asteroid body the DART will collide with.
         """
         # normal vector where dart is coming from
-        dir = asteroid.position - self.earth.position / asteroid.distance_to(self.earth)
-        pos = asteroid.position - dir * asteroid.radius # spawn dart colliding with asteroid
+        dart_radius = 10
+        dir = (asteroid.position - self.earth.position) / asteroid.distance_to(self.earth)
+        pos = asteroid.position - dir * (asteroid.radius + dart_radius) # spawn dart colliding with asteroid
         vel = dir * self.dart_speed
-        dart = Dart(pos, vel, self.dart_mass, 1.0, self)
+        dart = Dart(pos, vel, self.dart_mass, dart_radius, self)
         
         # Immediately calculate collision
-        print("DART Collision")
         asteroid.collide(dart)
 
     def verification_check(self):
@@ -226,5 +225,9 @@ class Model:
 
        
 if __name__ == "__main__":       
-    model = Model(seed=1, dt=60*60*24, duration=3600*24*365, dart_mass=data.EARTH.mass, dart_speed = 1000000, small_detection=1, medium_detection=1) # 1 year model
+    model = Model(seed=1, dt=60*60*24, duration=3600*24*365, 
+                  dart_distance=1e20, dart_mass=580, dart_speed=6600, 
+                  small_detection=1, medium_detection=1, large_detection=1,
+                  num_small=0, num_medium=0, num_large=20,
+                  asteroid_mass_large=5.4e11, asteroid_radius_large=390)
     model.run(animate=True, zoom=5)
