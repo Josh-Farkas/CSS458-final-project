@@ -112,7 +112,7 @@ class Model:
         """
         # Sun treated as planet for simplicity
         self.planets = [data.SUN, data.MERCURY, data.VENUS, data.EARTH, data.MARS, data.JUPITER, data.SATURN, data.URANUS, data.NEPTUNE]
-        self.planets = [p.deepcopy() for p in self.planets]
+        self.planets = [copy.deepcopy(p) for p in self.planets]
         self.sun = self.planets[0]
         self.earth = self.planets[2]
         for planet in self.planets:

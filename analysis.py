@@ -433,10 +433,42 @@ class Analysis:
         plt.show()
 
 
-    def asteroid_offset_analysis(self):
-        m1 = Model(seed = 10)
-        m2 = Model()
-        history = m.run()
+    def body_offset_analysis(self, seed=1):
+        """Compares Body ending positions in two different models with the same seed
+
+        Args:
+            seed (float): random seed
+        """
+        from asteroid import Asteroid
+        # Model with no DARTs
+        m_base = Model(seed=seed, dart_mass=610, duration=3600, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
+        
+        end_base = m_base.run()[-1][9:] # Ignore planets (first 9)
+        num_asteroids = len(end_base)
+        masses = [100, 200, 300, 600, 900, 1200, 1500, 1800]
+        # masses = [300, 600, 900]
+        all_distances = np.zeros((len(masses),))
+        for im, mass in enumerate(masses):
+            print(f"Testing Mass: {mass}")
+            m = Model(seed=seed, duration=3600, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            end = m.run()[-1][9:]
+        
+            distances = np.zeros((num_asteroids,))
+            # Get distance of all bodies
+            for j, b1, b2 in zip(range(num_asteroids), end_base, end):
+                offset = b1.position - b2.position
+                dist = np.linalg.norm(offset)
+                print(dist)
+                distances[j] = dist
+            mean = np.mean(distances)
+            all_distances[im] = mean
+            
+        plt.plot(masses, all_distances)
+        plt.title("DART mass vs Asteroid Offset Distance")
+        plt.xlabel("DART Mass (kg)")
+        plt.ylabel("Asteroid Offset (m)")
+        plt.grid(True, alpha=0.3)
+        plt.show()
         
         
         
