@@ -53,14 +53,14 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=60.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=300.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
-    num_small = 10, num_medium = 5, num_large = 3,
-    asteroid_distance_mean = 2.0, asteroid_distance_SD = .3, 
+    num_small = 30, num_medium = 5, num_large = 3,
+    asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
-    asteroid_radius_large = 10000, asteroid_mass_large = 10e13):
+    asteroid_radius_large = 10000, asteroid_mass_large = 10e13, duration=3600*24):
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -86,6 +86,8 @@ class Model:
         
         self.asteroid_radius_large = asteroid_radius_large
         self.asteroid_mass_large = asteroid_mass_large
+        
+        self.duration = duration
         self.init_bodies()
 
     def init_bodies(self):
@@ -103,13 +105,14 @@ class Model:
         self.planets = [data.SUN, data.MERCURY, data.VENUS, data.EARTH, data.MARS, data.JUPITER, data.SATURN, data.URANUS, data.NEPTUNE]
         for planet in self.planets:
             planet.model = self
+            
     
     def init_asteroids(self):
         """Initialize all asteroids with parameters based on Model parameters
         """
         distances = np.random.normal(self.asteroid_distance_mean, self.asteroid_distance_SD, self.num_asteroids)
         angles = np.random.uniform(0, 2*np.pi, self.num_asteroids)
-        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0))
+        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0)) + data.EARTH.position
         
         speeds = np.random.normal(self.asteroid_speed_mean, self.asteroid_speed_SD, self.num_asteroids)
         directions = data.EARTH.position - positions
@@ -129,7 +132,7 @@ class Model:
             self.asteroids.append(a)
     
     
-    def run(self):
+    def run(self, animate=False):
         # fig, ax = plt.subplots(figsize=(6,6))
         # planet_scatter = ax.scatter([], [], s=10, c="Blue")
         # asteroid_scatter = ax.scatter([], [], s=3, c="Red")
@@ -139,8 +142,10 @@ class Model:
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
         # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
-        for t in range(500):
+        for t in range(int(self.duration / self.dt)):
             self.step()
+            # print("EARTH DISTANCE: ", data.EARTH.distance_to(data.SUN) / AU)
+            
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
             # arrow.remove()
@@ -150,12 +155,13 @@ class Model:
                            #  head_length=1e10, # head length
                            #  color='red')
             # plt.pause(0.01)
-
+            
         # plt.ioff()
         # plt.show()
         
-        # anim = animation.Animation(self.all_timestep_bodies)
-        # anim.animate(multiplier=3, save=False)
+        if animate:
+            anim = animation.Animation(self.all_timestep_bodies)
+            anim.animate(multiplier=3, save=False)
 
         return self.all_timestep_bodies
 
@@ -169,6 +175,7 @@ class Model:
         self.handle_collisions()
         
         self.all_timestep_bodies.append(copy.deepcopy(self.bodies))
+
 
     def handle_collisions(self):
         """Check and resolve all collisions between bodies.
@@ -195,6 +202,6 @@ class Model:
         asteroid.collide(dart)
 
        
-       
-# model = Model()
-# model.run()
+if __name__ == "__main__":       
+    model = Model()
+    model.run(animate=True)
