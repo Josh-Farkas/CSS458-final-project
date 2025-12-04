@@ -53,7 +53,7 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=300.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=60.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 30, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
@@ -103,7 +103,7 @@ class Model:
         """Initialize all Body objects and add to bodies list
         """
         self.init_planets()
-        self.init_asteroids()
+        # self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
@@ -167,6 +167,9 @@ class Model:
             
         # plt.ioff()
         # plt.show()
+
+
+        self.verification_check()
         
         if animate:
             anim = animation.Animation(self.all_timestep_bodies)
@@ -178,13 +181,15 @@ class Model:
     def step(self):
         """Runs one timestep of the simulation.
         """
-        for body in self.bodies:
+        op_bodies = copy.deepcopy(self.bodies)
+        for body in op_bodies:
             body.step()
             self.handle_dart(body)
 
         self.handle_collisions()
         
-        self.all_timestep_bodies.append(copy.deepcopy(self.bodies))
+        self.all_timestep_bodies.append(op_bodies)
+        self.bodies = copy.deepcopy(op_bodies)
 
 
     def handle_collisions(self):
@@ -221,6 +226,21 @@ class Model:
         
         # Immediately calculate collision
         asteroid.collide(dart)
+
+    def verification_check(self):
+        real_x = -3.526393951820965E+07
+        real_y = 3.443028330454750E+07
+        real_z = 6.091104795446873E+06
+        calc_x = self.all_timestep_bodies[-1][1].position[0] / 1000
+        calc_y = self.all_timestep_bodies[-1][1].position[1] / 1000
+        calc_z = self.all_timestep_bodies[-1][1].position[2] / 1000
+        print("Mercury's position after 24 hours in kilometers:")
+        print(f"[{calc_x:e}, {calc_y:e}, {calc_z:e}]")
+        print("Mercury's expected position after 24 hours in kilometers:")
+        print(f"[{real_x:e}, {real_y:e}, {real_z:e}]")
+        dist = np.sqrt((calc_x - real_x)**2 + (calc_y - real_y)**2 + (calc_z - real_z)**2)
+        print(f"Distance difference between calculated and real: {dist:e}")
+
 
        
 if __name__ == "__main__":       
