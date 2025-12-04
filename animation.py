@@ -189,7 +189,6 @@ class Animation(object):
         ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
 
         # Scatterplot for __update function.
-        self.scat = ax.scatter([], [])
         self.planet_scat = ax.scatter([], [], s=15, color='blue')
         self.asteroid_scat = ax.scatter([], [], s=3, color='red')
         
