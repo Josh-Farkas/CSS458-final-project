@@ -265,6 +265,7 @@ class Analysis:
         plt.ylabel("Earth Protection (%)")
         plt.show()
 
+        
 
     def compare_runs(self, run_1_name, run_2_name):
         
@@ -319,15 +320,129 @@ class Analysis:
         Calls the Model seperatetly to anaylize different speeds for darts 
         and see how it affects trackable data, aka num_intercepted, num_failed_interception and num_collided
         """
-        pass
+ 
+        interception_rates = []
+        failed_interception_rates = []
+        protection_rates = []
+
+        for speed in speed_values:
+            m = Model(dart_speed = speed, collision_elasticity = 1)
+
+            history = m.run()
+
+            run_name = f"speed_{speed}"
+            self.add_runs(run_name, 
+                    history, 
+                    m.num_asteroids,
+                    m.num_intercepted, 
+                    m.num_asteroids_collided, 
+                    m.num_intercepted_collided, 
+                    m.dt)
+
+            #calculate Metrics 
+            interception_rates.append(self.calculate_interception_rate(run_name))
+            failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+            protection_rates.append(self.calculate_success_rate(run_name))
+
+            # Plot results
+        plt.figure(figsize=(12, 5))
+        
+        # Subplot 1: Interception Rate
+        plt.subplot(1, 3, 1)
+        plt.plot(speed_values, interception_rates, marker='o', linewidth=2, color='blue')
+        plt.title("Interception Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 2: Failed Interceptions
+        plt.subplot(1, 3, 2)
+        plt.plot(speed_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
+        plt.title("Failed Interception Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Failed Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 3: Protection Rate
+        plt.subplot(1, 3, 3)
+        plt.plot(speed_values, protection_rates, marker='o', linewidth=2, color='green')
+        plt.title("Protection Rate vs DART Speed")
+        plt.xlabel("DART Speed (m/s)")
+        plt.ylabel("Protection Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
+
 
     def dart_mass_analysis(self, mass_values):
+
         """
         Similar to speed analysis but analyzes the results with different dart masses
         """
-        pass
+        interception_rates = []
+        failed_interception_rates = []
+        protection_rates = []
+
+        for mass in mass_values:
+            m = Model(dart_mass = mass, collision_elasticity = 1)
+
+            history = m.run()
+
+            run_name = f"mass{mass}"
+            self.add_runs(run_name, 
+                    history, 
+                    m.num_asteroids,
+                    m.num_intercepted, 
+                    m.num_asteroids_collided, 
+                    m.num_intercepted_collided, 
+                    m.dt)
+        
+            interception_rates.append(self.calculate_interception_rate(run_name))
+            failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+            protection_rates.append(self.calculate_success_rate(run_name))
+
+            # Plot results
+        plt.figure(figsize=(12, 5))
+        
+        # Subplot 1: Interception Rate
+        plt.subplot(1, 3, 1)
+        plt.plot(mass_values, interception_rates, marker='o', linewidth=2, color='blue')
+        plt.title("Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 2: Failed Interceptions
+        plt.subplot(1, 3, 2)
+        plt.plot(mass_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
+        plt.title("Failed Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Failed Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 3: Protection Rate
+        plt.subplot(1, 3, 3)
+        plt.plot(mass_values, protection_rates, marker='o', linewidth=2, color='green')
+        plt.title("Protection Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Protection Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
 
 #=============================================================================================
+
+    def run_sensitivity_test(self):
+
+        speeds = np.linspace(5000, 7000, 3)
+        self.dart_speed_analysis(speeds)
+
+
+        masses = [610, 1220, 2440, 4880, 9760]
+        self.dart_mass_analysis(masses)
+
 
 
     def run_single_test(self):
@@ -360,3 +475,6 @@ class Analysis:
 if __name__ == "__main__":
     analysis = Analysis()
     analysis.run_single_test()
+
+    analysis.run_sensitivity_test()
+
