@@ -432,6 +432,15 @@ class Analysis:
         plt.tight_layout()
         plt.show()
 
+
+    def asteroid_offset_analysis(self):
+        m1 = Model(seed = 10)
+        m2 = Model()
+        history = m.run()
+        
+        
+        
+
 #=============================================================================================
 
     def run_sensitivity_test(self):

@@ -112,6 +112,9 @@ class Model:
         """
         # Sun treated as planet for simplicity
         self.planets = [data.SUN, data.MERCURY, data.VENUS, data.EARTH, data.MARS, data.JUPITER, data.SATURN, data.URANUS, data.NEPTUNE]
+        self.planets = [p.deepcopy() for p in self.planets]
+        self.sun = self.planets[0]
+        self.earth = self.planets[2]
         for planet in self.planets:
             planet.model = self
             
@@ -121,10 +124,10 @@ class Model:
         """
         distances = np.random.normal(self.asteroid_distance_mean, self.asteroid_distance_SD, self.num_asteroids)
         angles = np.random.uniform(0, 2*np.pi, self.num_asteroids)
-        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0)) + data.EARTH.position
+        positions = np.column_stack((distances * np.cos(angles), distances * np.sin(angles), distances * 0)) + self.earth.position
         
         speeds = np.random.normal(self.asteroid_speed_mean, self.asteroid_speed_SD, self.num_asteroids)
-        directions = data.EARTH.position - positions
+        directions = self.earth.position - positions
         directions /= np.linalg.norm(directions, axis=1, keepdims=True) # normalize directions
         velocities = directions * speeds[:, None]
         
@@ -150,15 +153,15 @@ class Model:
         # plt.autoscale(False)
         # ax.set_ybound(-5*AU, 5*AU)
         # ax.set_xbound(-5*AU, 5*AU)
-        # arrow = ax.arrow(*data.EARTH.position, *(data.EARTH.velocity * 1000))
+        # arrow = ax.arrow(*self.earth.position, *(self.earth.velocity * 1000))
         for t in range(int(self.duration / self.dt)):
             self.step()
-            # print("EARTH DISTANCE: ", data.EARTH.distance_to(data.SUN) / AU)
+            # print("EARTH DISTANCE: ", self.earth.distance_to(data.SUN) / AU)
             
             # asteroid_scatter.set_offsets(np.column_stack(([asteroid.position[1] for asteroid in self.asteroids], [asteroid.position[0] for asteroid in self.asteroids])))
             # planet_scatter.set_offsets(np.column_stack(([planet.position[1] for planet in self.planets], [planet.position[0] for planet in self.planets])))
             # arrow.remove()
-            # arrow = ax.arrow(*data.EARTH.position[::-1], *(data.EARTH.velocity[::-1] * 1000),
+            # arrow = ax.arrow(*self.earth.position[::-1], *(self.earth.velocity[::-1] * 1000),
                            #  width=1e10,      # shaft thickness
                            #  head_width=1e10, # head width
                            #  head_length=1e10, # head length
@@ -204,7 +207,7 @@ class Model:
             body (Body): The body to check
         """
         if body is not Asteroid: return
-        if body.will_be_intercepted and not body.intercepted and body.distance_to(data.EARTH) < self.dart_distance:
+        if body.will_be_intercepted and not body.intercepted and body.distance_to(self.earth) < self.dart_distance:
             self.launch_dart(body)
     
     def launch_dart(self, asteroid):
