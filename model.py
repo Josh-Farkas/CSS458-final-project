@@ -53,7 +53,7 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=60.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=60000.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 10, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
@@ -62,7 +62,7 @@ class Model:
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
     small_detection = 0.5, medium_detection=.75, large_detection=1.0,
-    duration=3600*24, seed=0):
+    duration=3600*24*365, seed=0):
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -176,7 +176,7 @@ class Model:
         
         if animate:
             anim = animation.Animation(self.all_timestep_bodies)
-            anim.animate(multiplier=3, save=False)
+            anim.animate(multiplier=3, save=True, filename='365_4_ast.gif')
 
         return self.all_timestep_bodies
 
