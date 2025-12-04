@@ -1,8 +1,6 @@
 import numpy as np
 from body import Body
 from dart import Dart
-from planet import Planet
-import data
 
 class Asteroid(Body):
     
@@ -24,7 +22,7 @@ class Asteroid(Body):
     def update_collision_data(self, other):
         if other is Dart:
             self.intercepted = True
-        if other == data.EARTH:
+        if other == self.model.earth:
             print("EARTH COLLISION")
             self.model.num_asteroids_collided += 1
             self.model.bodies.remove(self)

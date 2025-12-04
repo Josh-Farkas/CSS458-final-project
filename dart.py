@@ -9,3 +9,4 @@ class Dart(Body):
 
     def update_collision_data(self, other):
         self.model.num_intercepted += 1
+        print("DART Intercepted")
