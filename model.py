@@ -60,7 +60,9 @@ class Model:
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
-    asteroid_radius_large = 10000, asteroid_mass_large = 10e13, duration=3600*24):
+    asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
+    small_detection = 0.5, medium_detection=.75, large_detection=1.0,
+    duration=3600*24):
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -86,6 +88,10 @@ class Model:
         
         self.asteroid_radius_large = asteroid_radius_large
         self.asteroid_mass_large = asteroid_mass_large
+        
+        self.small_detection = small_detection
+        self.medium_detection = medium_detection
+        self.large_detection = large_detection
         
         self.duration = duration
         self.init_bodies()
@@ -171,6 +177,7 @@ class Model:
         """
         for body in self.bodies:
             body.step()
+            self.handle_dart()
 
         self.handle_collisions()
         
@@ -184,7 +191,18 @@ class Model:
             for body2 in self.bodies[i+1:]:
                 if body1.is_collided(body2):
                     body1.collide(body2)
-            
+
+    def handle_dart(self, body):
+        """Checks if a body is an asteroid that meets the criteria to launch a dart.
+        - Hasn't been hit yet
+        - Marked to be hit (decided when asteroid is initialized)
+
+        Args:
+            body (Body): The body to check
+        """
+        if body is not Asteroid: return
+        if body.will_be_intercepted and not body.intercepted and body.distance_to(data.EARTH) < self.dart_distance:
+            self.launch_dart(body)
     
     def launch_dart(self, asteroid):
         """Launches a DART at a given Asteroid
