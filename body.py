@@ -13,7 +13,7 @@ class Body:
     
     model = None
     
-    def __init__(self, pos=0, vel=0, mass=0, radius=0, model=0, label=""):
+    def __init__(self, pos, vel, mass, radius, model=None, label=""):
         self.position = np.copy(pos)
         self.velocity = np.copy(vel)
         self.mass = mass

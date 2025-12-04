@@ -14,6 +14,7 @@ class Asteroid(Body):
         if other is Dart:
             self.intercepted = True
         if other == self.model.earth:
+            print("EARTH COLLISION")
             self.model.num_asteroids_collided += 1
             self.model.bodies.remove(self)
             if self.intercepted:
