@@ -97,14 +97,15 @@ class Animation(object):
         bodies = self.data_set[frame]
 
         # Offsets the scatter plot by corrected values.
-        self.scat.set_offsets(np.column_stack((xs, ys)))
+        self.planet_scat.set_offsets(np.column_stack((xs[:9], ys[:9])))
+        self.asteroid_scat.set_offsets(np.column_stack((xs[9:], ys[9:])))
 
         # Creates label positions in correlation with body positions.
         for label, x, y, body in zip(self.labels, xs, ys, bodies):
             label.set_position((x, y))
             label.set_text(body.label)
 
-        return (self.scat, *self.labels)
+        return (self.planet_scat, self.asteroid_scat, *self.labels)
 
     def __get_centered_positions(self, frame):
         '''
@@ -188,7 +189,9 @@ class Animation(object):
         ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5)
 
         # Scatterplot for __update function.
-        self.scat = ax.scatter([], [])
+        self.planet_scat = ax.scatter([], [], s=15, color='blue')
+        self.asteroid_scat = ax.scatter([], [], s=3, color='red')
+        
         self.ax = ax
 
         # Declaring class attribute list of text labels for each object in

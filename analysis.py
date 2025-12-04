@@ -433,7 +433,7 @@ class Analysis:
         plt.show()
 
 
-    def body_offset_analysis(self, seed=1):
+    def body_offset_analysis(self, seed=0):
         """Compares Body ending positions in two different models with the same seed
 
         Args:
@@ -441,16 +441,16 @@ class Analysis:
         """
         from asteroid import Asteroid
         # Model with no DARTs
-        m_base = Model(seed=seed, dart_mass=610, duration=3600, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
-        
-        end_base = m_base.run()[-1][9:] # Ignore planets (first 9)
+        m_base = Model(seed=seed, dart_mass=610, duration=3600*24*1, dt=60, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
+        h = m_base.run()
+        end_base = h[-1][9:] # Ignore planets (first 9)
         num_asteroids = len(end_base)
         masses = [100, 200, 300, 600, 900, 1200, 1500, 1800]
         # masses = [300, 600, 900]
         all_distances = np.zeros((len(masses),))
         for im, mass in enumerate(masses):
             print(f"Testing Mass: {mass}")
-            m = Model(seed=seed, duration=3600, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            m = Model(seed=seed, duration=3600, dt=60, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
             end = m.run()[-1][9:]
         
             distances = np.zeros((num_asteroids,))
@@ -460,6 +460,7 @@ class Analysis:
                 dist = np.linalg.norm(offset)
                 print(dist)
                 distances[j] = dist
+            print("SIZE: ", distances.size())
             mean = np.mean(distances)
             all_distances[im] = mean
             
@@ -477,12 +478,14 @@ class Analysis:
 
     def run_sensitivity_test(self):
 
-        speeds = np.linspace(5000, 7000, 3)
-        self.dart_speed_analysis(speeds)
+        self.body_offset_analysis()
+
+        # speeds = np.linspace(5000, 7000, 3)
+        # self.dart_speed_analysis(speeds)
 
 
-        masses = np.linspace(500, 700, 3)
-        self.dart_mass_analysis(masses)
+        # masses = np.linspace(500, 700, 3)
+        # self.dart_mass_analysis(masses)
 
 
 
@@ -515,7 +518,7 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
-    analysis.run_single_test()
+    # analysis.run_single_test()
 
     analysis.run_sensitivity_test()
 
