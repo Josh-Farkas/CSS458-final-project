@@ -39,7 +39,6 @@ class Model:
     # asteroid_radius_large = 10000 # m
     # asteroid_mass_large = 10e13 # kg
     
-    
     # End Tunable Parameters
     
     
@@ -94,6 +93,13 @@ class Model:
         self.large_detection = large_detection
         
         self.duration = duration
+        self.mass_multi = mass_multi
+        self.vel_multi = vel_multi
+
+        self.bodies = []
+        self.planets = []
+        self.asteroids = []
+        self.all_timestep_bodies = []
         if seed != 0: 
             np.random.seed(seed)
         
@@ -102,12 +108,12 @@ class Model:
     def init_bodies(self):
         """Initialize all Body objects and add to bodies list
         """
-        self.init_planets()
-        self.init_asteroids()
+        self.init_planets(mass_multi=self.mass_multi, vel_multi=self.vel_multi)
+        # self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
-    def init_planets(self):
+    def init_planets(self, mass_multi=1, vel_multi=1):
         """Initialize planets list from data.py
         """
         # Sun treated as planet for simplicity
