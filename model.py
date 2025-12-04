@@ -55,7 +55,7 @@ class Model:
     
     def __init__(self, dt=60.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
-    num_small = 30, num_medium = 5, num_large = 3,
+    num_small = 10, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
@@ -103,7 +103,7 @@ class Model:
         """Initialize all Body objects and add to bodies list
         """
         self.init_planets()
-        # self.init_asteroids()
+        self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
@@ -247,5 +247,5 @@ class Model:
 
        
 if __name__ == "__main__":       
-    model = Model(seed=1)
+    model = Model(seed=1, dt=60000, duration=3600*24*365, dart_mass=data.EARTH.mass) # 1 year model
     model.run(animate=True)
