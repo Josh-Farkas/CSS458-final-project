@@ -318,10 +318,118 @@ class Analysis:
         """
         Similar to speed analysis but analyzes the results with different dart masses
         """
+<<<<<<< Updated upstream
         pass
 
 #=============================================================================================
 
+=======
+        interception_rates = []
+        failed_interception_rates = []
+        protection_rates = []
+
+        for mass in mass_values:
+            m = Model(dart_mass = mass, collision_elasticity = 1)
+
+            history = m.run()
+
+            run_name = f"mass{mass}"
+            self.add_runs(run_name, 
+                    history, 
+                    m.num_asteroids,
+                    m.num_intercepted, 
+                    m.num_asteroids_collided, 
+                    m.num_intercepted_collided, 
+                    m.dt)
+        
+        interception_rates.append(self.calculate_interception_rate(run_name))
+        failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+        protection_rates.append(self.calculate_success_rate(run_name))
+
+            # Plot results
+        plt.figure(figsize=(12, 5))
+        
+        # Subplot 1: Interception Rate
+        plt.subplot(1, 3, 1)
+        plt.plot(mass_values, interception_rates, marker='o', linewidth=2, color='blue')
+        plt.title("Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 2: Failed Interceptions
+        plt.subplot(1, 3, 2)
+        plt.plot(mass_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
+        plt.title("Failed Interception Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Failed Interception Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        # Subplot 3: Protection Rate
+        plt.subplot(1, 3, 3)
+        plt.plot(mass_values, protection_rates, marker='o', linewidth=2, color='green')
+        plt.title("Protection Rate vs DART Mass")
+        plt.xlabel("DART Mass (m/s)")
+        plt.ylabel("Protection Rate (%)")
+        plt.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        plt.show()
+
+
+    def body_offset_analysis(self, seed=1):
+        """Compares Body ending positions in two different models with the same seed
+
+        Args:
+            seed (float): random seed
+        """
+        from asteroid import Asteroid
+        # Model with no DARTs
+        m_base = Model(seed=seed, dart_mass=610, duration=3600, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
+        
+        end_base = m_base.run()[-1][9:] # Ignore planets (first 9)
+        num_asteroids = len(end_base)
+        masses = [100, 200, 300, 600, 900, 1200, 1500, 1800]
+        # masses = [300, 600, 900]
+        all_distances = np.zeros((len(masses),))
+        for im, mass in enumerate(masses):
+            print(f"Testing Mass: {mass}")
+            m = Model(seed=seed, duration=3600, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            end = m.run()[-1][9:]
+        
+            distances = np.zeros((num_asteroids,))
+            # Get distance of all bodies
+            for j, b1, b2 in zip(range(num_asteroids), end_base, end):
+                offset = b1.position - b2.position
+                dist = np.linalg.norm(offset)
+                print(dist)
+                distances[j] = dist
+            mean = np.mean(distances)
+            all_distances[im] = mean
+            
+        plt.plot(masses, all_distances)
+        plt.title("DART mass vs Asteroid Offset Distance")
+        plt.xlabel("DART Mass (kg)")
+        plt.ylabel("Asteroid Offset (m)")
+        plt.grid(True, alpha=0.3)
+        plt.show()
+            
+
+#=============================================================================================
+
+    def run_sensitivity_test(self):
+
+        # speeds = np.linspace(5000, 7000, 3)
+        # self.dart_speed_analysis(speeds)
+
+
+        # masses = np.linspace(500, 700, 3)
+        # self.dart_mass_analysis(masses)
+        
+        self.body_offset_analysis()
+
+
+>>>>>>> Stashed changes
 
     def run_single_test(self):
         m = Model(collision_elasticity=1)
@@ -352,4 +460,11 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
+<<<<<<< Updated upstream
     analysis.run_single_test()
+=======
+    # analysis.run_single_test()
+
+    analysis.run_sensitivity_test()
+
+>>>>>>> Stashed changes

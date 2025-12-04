@@ -7,8 +7,8 @@ class Body:
     """
     position = np.array([0, 0, 0])
     velocity = np.array([0, 0, 0])
-    mass: int = 0 # kg
-    radius: int = 0 # meters
+    mass = 0 # kg
+    radius = 0 # meters
     kinetic_energy = 0
     
     model = None
@@ -78,7 +78,7 @@ class Body:
         return np.hstack((vel, self.acceleration(pos)))
 
     
-    def runge_kutta(self, dt):
+    def runge_kutta(self, dt, euler_only=False):
         """Runge-Kutta timestepping method. Updates position and velocity.
 
         Args:
@@ -86,12 +86,15 @@ class Body:
         """
         state = np.hstack((self.position, self.velocity))
         k1 = dt * self.state_deriv(state)
-        k2 = dt * self.state_deriv(state + k1/2)
-        k3 = dt * self.state_deriv(state + k2/2)
-        k4 = dt * self.state_deriv(state + k3)
-        
-        # Calculate weighted average.
-        new_state = state + dt/6 * (k1 + 2*k2 + 2*k3 + k4)
+        if not euler_only:
+            k2 = dt * self.state_deriv(state + k1/2)
+            k3 = dt * self.state_deriv(state + k2/2)
+            k4 = dt * self.state_deriv(state + k3)
+            
+            # Calculate weighted average.
+            new_state = state + 1/6 * (k1 + 2*k2 + 2*k3 + k4)
+        else:
+            new_state = state + k1
         pos = new_state[:3]
         vel = new_state[3:]
 
@@ -137,8 +140,11 @@ class Body:
         impulse = -1.0 * ((1 + elasticity) * v_rel) / (1 / self.mass + 1 / other.mass) * contact_normal
         
         # Update Body velocities
-        self.velocity -= impulse / self.mass
-        other.velocity += impulse / other.mass
+        try:
+            self.velocity -= impulse / self.mass
+            other.velocity += impulse / other.mass
+        except:
+            pass
         
         # Positional correction (prevents repeated collisions)
         overlap = self.radius + other.radius - dist

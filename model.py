@@ -53,14 +53,20 @@ class Model:
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=300.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=60.0*60*24, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
-    num_small = 30, num_medium = 5, num_large = 3,
-    asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
+    num_small = 10, num_medium = 5, num_large = 3,
+    asteroid_distance_mean = AU, asteroid_distance_SD = .3*AU, 
     asteroid_speed_mean = 21000, asteroid_speed_SD = 3000,
     asteroid_radius_small = 100, asteroid_mass_small = 10e8,
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
+<<<<<<< Updated upstream
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13, duration=3600*24):
+=======
+    asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
+    small_detection = 0.5, medium_detection=.75, large_detection=1.0,
+    duration=3600*5, seed=0):
+>>>>>>> Stashed changes
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -72,8 +78,8 @@ class Model:
         self.num_large = num_large
         self.num_asteroids = num_small + num_medium + num_large
         
-        self.asteroid_distance_mean = asteroid_distance_mean * AU
-        self.asteroid_distance_SD = asteroid_distance_SD * AU 
+        self.asteroid_distance_mean = asteroid_distance_mean
+        self.asteroid_distance_SD = asteroid_distance_SD 
         
         self.asteroid_speed_mean = asteroid_speed_mean
         self.asteroid_speed_SD = asteroid_speed_SD
@@ -88,6 +94,11 @@ class Model:
         self.asteroid_mass_large = asteroid_mass_large
         
         self.duration = duration
+<<<<<<< Updated upstream
+=======
+        self.seed = seed
+        
+>>>>>>> Stashed changes
         self.init_bodies()
 
     def init_bodies(self):
@@ -103,6 +114,12 @@ class Model:
         """
         # Sun treated as planet for simplicity
         self.planets = [data.SUN, data.MERCURY, data.VENUS, data.EARTH, data.MARS, data.JUPITER, data.SATURN, data.URANUS, data.NEPTUNE]
+<<<<<<< Updated upstream
+=======
+        self.planets = [copy.deepcopy(p) for p in self.planets]
+        self.sun = self.planets[0]
+        self.earth = self.planets[2]
+>>>>>>> Stashed changes
         for planet in self.planets:
             planet.model = self
             
@@ -133,6 +150,7 @@ class Model:
     
     
     def run(self, animate=False):
+<<<<<<< Updated upstream
         # fig, ax = plt.subplots(figsize=(6,6))
         # planet_scatter = ax.scatter([], [], s=10, c="Blue")
         # asteroid_scatter = ax.scatter([], [], s=3, c="Red")
@@ -158,6 +176,14 @@ class Model:
             
         # plt.ioff()
         # plt.show()
+=======
+        if self.seed != 0: 
+            np.random.seed(self.seed)
+
+        for t in range(int(self.duration / self.dt)):
+            self.step()
+            # print("EARTH DISTANCE: ", self.earth.distance_to(self.sun) / AU)
+>>>>>>> Stashed changes
         
         if animate:
             anim = animation.Animation(self.all_timestep_bodies)
