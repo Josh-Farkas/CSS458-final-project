@@ -97,9 +97,8 @@ def test_runge_kutta():
     test_model.asteroids.clear()
     b = test_model.bodies[0]
     for t in range(100):
-        b.runge_kutta()
+        b.runge_kutta(dt=60)
         print(t, b.position, b.velocity)
-    assert 1 == 2
 
 # Model Module Tests
 ##############################
