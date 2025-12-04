@@ -21,6 +21,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from model import Model
 import animation
+import data
 
 
 #========================================Data Storage methods=============================================
@@ -437,6 +438,7 @@ class Analysis:
         Args:
             seed (float): random seed
         """
+        from asteroid import Asteroid
         # Model with no DARTs
         m_base = Model(seed=seed, dart_mass=610, duration=3600*24*60, dt=60*60*24, dart_distance=1e20, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
         h = m_base.run()
@@ -457,6 +459,9 @@ class Analysis:
             for j, b1, b2 in zip(range(num_asteroids), end_base, end):
                 offset = b1.position - b2.position
                 dist = np.linalg.norm(offset)
+                print(dist)
+                distances[j] = dist
+            print("SIZE: ", distances.size())
                 if dist > 1e15 and j > 0:
                     distances[j] = distances[j-1] # Fixes outlier issue
                 else:
@@ -476,7 +481,48 @@ class Analysis:
         plt.grid(True, alpha=0.3)
         plt.show()
         
+# Testing Earth's velocity at different percentages. Doesn't Run. 
+    def stability_test(self):
 
+        velocities = [0.3, 0.7, ] # at 70, 100, 150 %
+        results = []
+        AU = 149_597_900_000
+
+        print("Testing Velocity")
+
+        for multiplier in velocities:
+            m = Model(duration = 3600 * 24 * 365 * 5, dt = 60 * 60 * 24,num_small=0, num_medium=0, num_large=0)
+            m.earth.velocity = data.EARTH.velocity * multiplier
+            history = m.run()
+
+            last_timestep = history[-1]
+
+            earth = self.find_by_label(last_timestep, "earth")
+            sun = self.find_by_label(last_timestep, "sun")
+
+            distance_meters = earth.distance_to(sun)
+            
+            distance_au = distance_meters / AU
+
+            results.append(distance_au)
+#
+
+        print("Final Distance")
+
+        velocity_percentages = [v*100 for v in velocities]
+        plt.figure(figsize=(10, 6))
+        plt.scatter(velocity_percentages, results, s=200, color=['red', 'green', 'blue'])
+        plt.axhline(y=1.0, color='black', linestyle='--', linewidth=2, label='Starting distance (1 AU)')
+        plt.title("Earth's Final Distance vs Initial Velocity", fontsize=14, fontweight='bold')
+        plt.xlabel("Velocity (% of normal)", fontsize=12)
+        plt.ylabel("Distance from Sun after 30 days (AU)", fontsize=12)
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.show()
+
+
+
+        
 
 #=============================================================================================
 
@@ -522,7 +568,10 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
+    #analysis.run_single_test()
     # analysis.run_single_test()
 
     analysis.run_sensitivity_test()
 
+   # analysis.run_sensitivity_test()
+    analysis.stability_test()
