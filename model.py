@@ -39,21 +39,15 @@ class Model:
     # asteroid_radius_large = 10000 # m
     # asteroid_mass_large = 10e13 # kg
     
-    
     # End Tunable Parameters
-    
-    bodies = []
-    planets = []
-    asteroids = []
-    
-    all_timestep_bodies = [] # [bodies at time 1, bodies at time 2...]
+
     
     # Tracked Data
     num_intercepted = 0
     num_asteroids_collided = 0
     num_intercepted_collided = 0 # Failed interceptions
     
-    def __init__(self, dt=60000.0, collision_elasticity = 1.0, 
+    def __init__(self, dt=6000.0, collision_elasticity = 1.0, 
     dart_mass = 610, dart_speed = 6600, dart_distance = 11_000_000_000,
     num_small = 30, num_medium = 5, num_large = 3,
     asteroid_distance_mean = 1.0, asteroid_distance_SD = .3, 
@@ -62,7 +56,7 @@ class Model:
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
     small_detection = 0.5, medium_detection=.75, large_detection=1.0,
-    duration=3600*24*365, seed=0):
+    duration=3600*24*365, seed=0, mass_multi=1, vel_multi=1):
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -94,6 +88,13 @@ class Model:
         self.large_detection = large_detection
         
         self.duration = duration
+        self.mass_multi = mass_multi
+        self.vel_multi = vel_multi
+
+        self.bodies = []
+        self.planets = []
+        self.asteroids = []
+        self.all_timestep_bodies = []
         if seed != 0: 
             np.random.seed(seed)
         
@@ -102,16 +103,23 @@ class Model:
     def init_bodies(self):
         """Initialize all Body objects and add to bodies list
         """
-        self.init_planets()
-        self.init_asteroids()
+        self.init_planets(mass_multi=self.mass_multi, vel_multi=self.vel_multi)
+        # self.init_asteroids()
         self.bodies = self.planets + self.asteroids
     
     
-    def init_planets(self):
+    def init_planets(self, mass_multi=1, vel_multi=1):
         """Initialize planets list from data.py
         """
         # Sun treated as planet for simplicity
-        self.planets = [data.SUN, data.MERCURY, data.VENUS, data.EARTH, data.MARS, data.JUPITER, data.SATURN, data.URANUS, data.NEPTUNE]
+        self.planets = [copy.deepcopy(data.SUN), copy.deepcopy(data.MERCURY), 
+                    copy.deepcopy(data.VENUS), copy.deepcopy(data.EARTH), 
+                    copy.deepcopy(data.MARS), copy.deepcopy(data.JUPITER), 
+                    copy.deepcopy(data.SATURN), copy.deepcopy(data.URANUS), 
+                    copy.deepcopy(data.NEPTUNE)]
+        for body in self.planets:
+            body.mass = body.mass * mass_multi
+            body.velocity = body.velocity * vel_multi
         for planet in self.planets:
             planet.model = self
             
@@ -173,7 +181,7 @@ class Model:
         
         if animate:
             anim = animation.Animation(self.all_timestep_bodies)
-            anim.animate(multiplier=3, save=True, filename='365_4_ast.gif')
+            anim.animate(multiplier=3, save=False, filename='365_4_ast.gif')
 
         return self.all_timestep_bodies
 
@@ -244,5 +252,5 @@ class Model:
 
        
 if __name__ == "__main__":       
-    model = Model(seed=1)
+    model = Model(seed=1, mass_multi=0.5)
     model.run(animate=True)

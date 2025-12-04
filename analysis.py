@@ -270,6 +270,33 @@ class Analysis:
     def compare_runs(self, run_1_name, run_2_name):
         
         pass
+
+    def compare_sun_mass(self, body='mercury'):
+        m1 = Model()
+        m2 = Model(vel_multi=2)
+        m1_ran = m1.run()
+        m2_ran = m2.run()
+
+        x = range(len(m1_ran))
+        m1_slice = []
+        m2_slice = []
+
+        for body in m1_ran:
+            m1_slice.append(body[1].position[0])
+        for body2 in m2_ran:
+            m2_slice.append(body2[1].position[0])
+
+        plt.plot(x, m1_slice, label='Normal')
+        plt.plot(x, m2_slice, label='Double Planets')
+
+        plt.xlabel("Time steps")
+        plt.ylabel("X-position of Mercury Over Time")
+        plt.title("Mercury X-position of normal planet velocity vs. double velocity planets.")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+
 #==========================================================================================
 
 
@@ -462,9 +489,7 @@ class Analysis:
         )
         
         # Generate plots
-        self.plot_energy("test_run")
-        self.plot_momentum("test_run")
-        self.plot_success_metrics("test_run")
+        
         
 
         print(f"\nInterception Rate: {self.calculate_interception_rate('test_run'):.2f}%")
@@ -474,7 +499,5 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
-    analysis.run_single_test()
-
-    analysis.run_sensitivity_test()
+    analysis.compare_sun_mass()
 
