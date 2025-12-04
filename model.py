@@ -62,7 +62,7 @@ class Model:
     asteroid_radius_medium = 1000, asteroid_mass_medium = 10e11,
     asteroid_radius_large = 10000, asteroid_mass_large = 10e13, 
     small_detection = 0.5, medium_detection=.75, large_detection=1.0,
-    duration=3600*24):
+    duration=3600*24, seed=0):
         self.dt = dt
         self.collision_elasticity = collision_elasticity
         self.dart_mass = dart_mass
@@ -94,6 +94,9 @@ class Model:
         self.large_detection = large_detection
         
         self.duration = duration
+        if seed != 0: 
+            np.random.seed(seed)
+        
         self.init_bodies()
 
     def init_bodies(self):
@@ -177,7 +180,7 @@ class Model:
         """
         for body in self.bodies:
             body.step()
-            self.handle_dart()
+            self.handle_dart(body)
 
         self.handle_collisions()
         
@@ -221,5 +224,5 @@ class Model:
 
        
 if __name__ == "__main__":       
-    model = Model()
+    model = Model(seed=1)
     model.run(animate=True)
