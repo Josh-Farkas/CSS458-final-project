@@ -326,8 +326,13 @@ class Analysis:
         protection_rates = []
 
         for speed in speed_values:
-            m = Model(dart_speed = speed, collision_elasticity = 1)
-
+            m = Model(
+            dart_speed=speed, 
+            collision_elasticity=1, 
+            duration=3600*24*7,  
+            dt=300,
+            #store_history=True
+        )
             history = m.run()
 
             run_name = f"speed_{speed}"
@@ -347,7 +352,7 @@ class Analysis:
             # Plot results
         plt.figure(figsize=(12, 5))
         
-        # Subplot 1: Interception Rate
+       # Interception Rate
         plt.subplot(1, 3, 1)
         plt.plot(speed_values, interception_rates, marker='o', linewidth=2, color='blue')
         plt.title("Interception Rate vs DART Speed")
@@ -355,15 +360,14 @@ class Analysis:
         plt.ylabel("Interception Rate (%)")
         plt.grid(True, alpha=0.3)
         
-        # Subplot 2: Failed Interceptions
+        # Failed Interceptions
         plt.subplot(1, 3, 2)
         plt.plot(speed_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
         plt.title("Failed Interception Rate vs DART Speed")
         plt.xlabel("DART Speed (m/s)")
         plt.ylabel("Failed Interception Rate (%)")
         plt.grid(True, alpha=0.3)
-        
-        # Subplot 3: Protection Rate
+                #  Protection Rate
         plt.subplot(1, 3, 3)
         plt.plot(speed_values, protection_rates, marker='o', linewidth=2, color='green')
         plt.title("Protection Rate vs DART Speed")
@@ -385,7 +389,8 @@ class Analysis:
         protection_rates = []
 
         for mass in mass_values:
-            m = Model(dart_mass = mass, collision_elasticity = 1)
+            m = Model(dart_mass=mass, collision_elasticity=1, 
+                  duration=3600*2, dt=300)
 
             history = m.run()
 
@@ -398,31 +403,24 @@ class Analysis:
                     m.num_intercepted_collided, 
                     m.dt)
         
-        interception_rates.append(self.calculate_interception_rate(run_name))
-        failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
-        protection_rates.append(self.calculate_success_rate(run_name))
+            interception_rates.append(self.calculate_interception_rate(run_name))
+            failed_interception_rates.append(self.calculate_failed_interception_rate(run_name))
+            protection_rates.append(self.calculate_success_rate(run_name))
 
             # Plot results
         plt.figure(figsize=(12, 5))
         
-        # Subplot 1: Interception Rate
-        plt.subplot(1, 3, 1)
-        plt.plot(mass_values, interception_rates, marker='o', linewidth=2, color='blue')
-        plt.title("Interception Rate vs DART Mass")
-        plt.xlabel("DART Mass (m/s)")
-        plt.ylabel("Interception Rate (%)")
-        plt.grid(True, alpha=0.3)
         
-        # Subplot 2: Failed Interceptions
-        plt.subplot(1, 3, 2)
+        #  Failed Interceptions
+        plt.subplot(1, 3, 1)
         plt.plot(mass_values, failed_interception_rates, marker='o', linewidth=2, color='orange')
         plt.title("Failed Interception Rate vs DART Mass")
         plt.xlabel("DART Mass (m/s)")
         plt.ylabel("Failed Interception Rate (%)")
         plt.grid(True, alpha=0.3)
         
-        # Subplot 3: Protection Rate
-        plt.subplot(1, 3, 3)
+        #  Protection Rate
+        plt.subplot(1, 3, 2)
         plt.plot(mass_values, protection_rates, marker='o', linewidth=2, color='green')
         plt.title("Protection Rate vs DART Mass")
         plt.xlabel("DART Mass (m/s)")
@@ -471,21 +469,17 @@ class Analysis:
         plt.grid(True, alpha=0.3)
         plt.show()
         
-        
-        
+
 
 #=============================================================================================
 
     def run_sensitivity_test(self):
-
-        self.body_offset_analysis()
-
-        # speeds = np.linspace(5000, 7000, 3)
-        # self.dart_speed_analysis(speeds)
+        speeds = np.linspace(3000, 10000, 3)
+        self.dart_speed_analysis(speeds)
 
 
-        # masses = np.linspace(500, 700, 3)
-        # self.dart_mass_analysis(masses)
+        masses = np.linspace(100, 2000, 3)
+        self.dart_mass_analysis(masses)
 
 
 
@@ -518,7 +512,7 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
-    # analysis.run_single_test()
+    analysis.run_single_test()
 
     analysis.run_sensitivity_test()
 
