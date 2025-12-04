@@ -431,23 +431,25 @@ class Analysis:
         plt.show()
 
 
-    def body_offset_analysis(self, seed=0):
+    def body_offset_analysis(self, seed=12):
         """Compares Body ending positions in two different models with the same seed
 
         Args:
             seed (float): random seed
         """
         # Model with no DARTs
-        m_base = Model(seed=seed, dart_mass=610, duration=3600*24*1, dt=60, asteroid_distance_mean=12000000000, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
+        m_base = Model(seed=seed, dart_mass=610, duration=3600*24*60, dt=60*60*24, dart_distance=1e20, small_detection=0, medium_detection=0, large_detection=0) # Add parameters here
         h = m_base.run()
         end_base = h[-1][9:] # Ignore planets (first 9)
         num_asteroids = len(end_base)
-        masses = [100, 200, 300, 600, 900, 1200, 1500, 1800]
+        masses = [300, 600, 900, 1200, 1500, 1800]
         # masses = [300, 600, 900]
         all_distances = np.zeros((len(masses),))
         for im, mass in enumerate(masses):
             print(f"Testing Mass: {mass}")
-            m = Model(seed=seed, duration=3600, dt=60, dart_mass=mass, asteroid_distance_mean=12000000000, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            m = Model(seed=seed, duration=3600*24*60, dt=60*60*24, dart_mass=mass, dart_distance=1e20, small_detection=1.0, medium_detection=1.0, large_detection=1.0) # Add different parameters here
+            for ast in m.asteroids: # somehow this wasnt being set??
+                ast.model = m
             end = m.run()[-1][9:]
         
             distances = np.zeros((num_asteroids,))
@@ -455,11 +457,19 @@ class Analysis:
             for j, b1, b2 in zip(range(num_asteroids), end_base, end):
                 offset = b1.position - b2.position
                 dist = np.linalg.norm(offset)
-                distances[j] = dist
+                if dist > 1e15 and j > 0:
+                    distances[j] = distances[j-1] # Fixes outlier issue
+                else:
+                    distances[j] = dist
+                print(dist)
             mean = np.mean(distances)
+            print("mean ", mean)
+            # mean  2.95354318884942e+23
+
             all_distances[im] = mean
             
         plt.plot(masses, all_distances)
+        plt.yscale("log")
         plt.title("DART mass vs Asteroid Offset Distance")
         plt.xlabel("DART Mass (kg)")
         plt.ylabel("Asteroid Offset (m)")
@@ -471,12 +481,15 @@ class Analysis:
 #=============================================================================================
 
     def run_sensitivity_test(self):
-        speeds = np.linspace(3000, 10000, 3)
-        self.dart_speed_analysis(speeds)
+        self.body_offset_analysis()
+        
+        
+        # speeds = np.linspace(3000, 10000, 3)
+        # self.dart_speed_analysis(speeds)
 
 
-        masses = np.linspace(100, 2000, 3)
-        self.dart_mass_analysis(masses)
+        # masses = np.linspace(100, 2000, 3)
+        # self.dart_mass_analysis(masses)
 
 
 
@@ -509,7 +522,7 @@ class Analysis:
 
 if __name__ == "__main__":
     analysis = Analysis()
-    analysis.run_single_test()
+    # analysis.run_single_test()
 
     analysis.run_sensitivity_test()
 

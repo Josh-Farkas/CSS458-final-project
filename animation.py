@@ -99,6 +99,8 @@ class Animation(object):
         # Offsets the scatter plot by corrected values.
         self.planet_scat.set_offsets(np.column_stack((xs[:9], ys[:9])))
         self.asteroid_scat.set_offsets(np.column_stack((xs[9:], ys[9:])))
+        # self.asteroid_range.radius = self.data_set[0, 0].model.dart_distance
+        # self.asteroid_range.center = (xs[3], ys[3])
 
         # Creates label positions in correlation with body positions.
         for label, x, y, body in zip(self.labels, xs, ys, bodies):
@@ -191,6 +193,8 @@ class Animation(object):
         # Scatterplot for __update function.
         self.planet_scat = ax.scatter([], [], s=15, color='blue')
         self.asteroid_scat = ax.scatter([], [], s=3, color='red')
+        self.asteroid_range = plt.Circle((0,0), radius=0, fill=False)
+        ax.add_patch(self.asteroid_range)
         
         self.ax = ax
 

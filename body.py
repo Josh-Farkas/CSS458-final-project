@@ -126,7 +126,7 @@ class Body:
         """
         elasticity = self.model.collision_elasticity
         dist = self.distance_to(other)
-        if dist == 0 or dist > self.radius + other.radius: return
+        if dist == 0: return
         contact_normal = (other.position - self.position) / dist # normal vector pointing from body1 to body2
         v_rel = np.dot((other.velocity - self.velocity), contact_normal) # Relative velocity along normal
         if v_rel >= 0: return # Do not collide if bodies are moving away from each other
