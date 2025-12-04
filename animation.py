@@ -257,7 +257,7 @@ class Animation(object):
             print(f"Saving animation to {filename}...")
             ani.save(
                 filename,
-                fps=60,
+                fps=300,
                 dpi=150,
                 writer="pillow"
             )
